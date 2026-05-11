@@ -1,0 +1,271 @@
+@if (auth.currentUser$ | async; as user) {
+  <div class="kanban-container fade-in">
+    
+    @if (user.role === 'admin') {
+      <div class="admin-task-bar glass-card">
+        <div class="creator-card glass-card">
+            <h3 style="margin-top: 0; margin-bottom: 16px; color: white;">Create Coding Challenge</h3>
+            
+            <form [formGroup]="taskForm" (ngSubmit)="createTask(orgId)" class="task-form" style="background: rgba(22, 27, 34, 0.9); padding: 24px; border-radius: 12px; border: 1px solid #30363d; margin-bottom: 24px;">
+            
+            <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+              <select formControlName="type" (change)="onTypeChange()" style="flex: 1; height: 42px; font-weight: bold; border-color: #58a6ff;">
+                <option value="coding">💻 Coding Challenge</option>
+                <option value="quiz">📝 Interactive Quiz</option>
+                <option value="course">📚 Course Material (Reading)</option>
+              </select>
+
+              <input type="text" formControlName="title" placeholder="Title (e.g. Intro to Arrays)" style="flex: 2; height: 42px;">
+              
+              <select formControlName="priority" style="flex: 1; height: 42px;">
+                <option value="low">Low Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="high">High Priority</option>
+              </select>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+              <textarea formControlName="description" placeholder="Problem Statement / Overview / Reading Instructions..." style="width: 100%; min-height: 80px; background: rgba(0,0,0,0.2); border: 1px solid #30363d; color: white; padding: 10px; border-radius: 8px;"></textarea>
+            </div>
+
+            @if (taskForm.get('type')?.value === 'coding') {
+              <div style="margin-bottom: 16px;">
+                <textarea formControlName="startingCode" placeholder="Starting Code Template (e.g. function main() { })" style="width: 100%; min-height: 80px; font-family: 'JetBrains Mono', monospace; background: #010409; border: 1px solid #30363d; color: #39e672; padding: 10px; border-radius: 8px;"></textarea>
+              </div>
+            }
+
+            @if (taskForm.get('type')?.value === 'course') {
+              <div style="margin-bottom: 16px;">
+                <textarea formControlName="readContent" placeholder="Paste structural text content, documentation, or study instructions here..." style="width: 100%; min-height: 120px; background: rgba(0,0,0,0.2); border: 1px solid #30363d; color: white; padding: 10px; border-radius: 8px;"></textarea>
+              </div>
+            }
+
+            @if (taskForm.get('type')?.value === 'quiz') {
+              <div class="quiz-builder" style="border: 1px dashed #30363d; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: rgba(0,0,0,0.15);">
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                  <h4 style="margin: 0; color: #58a6ff;">Questions List</h4>
+                  
+                  <div style="background: rgba(46, 160, 67, 0.15); border: 1px solid #2ea043; padding: 6px 12px; border-radius: 20px; color: #39e672; font-size: 13px; font-weight: bold;">
+                    Total Task XP: {{ questions.length * taskForm.get('xpPerQuestion')?.value }} XP
+                  </div>
+
+                  <button type="button" class="btn-run" (click)="addQuestion()" style="padding: 4px 10px;">+ Add Question</button>
+                </div>
+
+                <div formArrayName="questions">
+                  @for (q of questions.controls; track $index; let qIdx = $index) {
+                    <div [formGroupName]="qIdx" style="background: #161b22; border: 1px solid #30363d; padding: 16px; border-radius: 8px; margin-bottom: 12px; position: relative;">
+                      
+                      <button type="button" (click)="removeQuestion(qIdx)" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; color: #f85149; cursor: pointer;">✕ Delete</button>
+                      
+                      <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px;">Question #{{ qIdx + 1 }}</label>
+                      <input type="text" formControlName="questionText" placeholder="Enter your question here..." style="width: 90%; margin-bottom: 12px;">
+
+                      <div formArrayName="options" style="padding-left: 12px; border-left: 2px solid #30363d; margin-top: 8px;">
+                        <span style="font-size: 12px; font-weight: bold; color: #8b949e; display: block; margin-bottom: 8px;">Options (Select the correct answer)</span>
+                        
+                        @for (opt of getOptions(qIdx).controls; track $index; let optIdx = $index) {
+                          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+                            
+                           <input type="radio" 
+                                   [name]="'correctOption_' + qIdx" 
+                                   [checked]="questions.value[qIdx].correctOptionIndex === optIdx"
+                                   (click)="toggleCorrectOption(qIdx, optIdx, $event)"
+                                   style="width: 18px; height: 18px; accent-color: #2ea043; cursor: pointer;"
+                                   title="Mark as correct answer">
+
+                            <input type="text" [formControlName]="optIdx" placeholder="Choice option..." style="flex: 1; font-size: 13px; padding: 6px;">
+                            
+                            @if (getOptions(qIdx).length > 2) {
+                              <button type="button" (click)="removeOption(qIdx, optIdx)" style="background: transparent; border: none; color: #ff4757; cursor: pointer;">✕</button>
+                            }
+                          </div>
+                        }
+                        <button type="button" (click)="addOption(qIdx)" style="background: transparent; border: none; color: #58a6ff; font-size: 12px; cursor: pointer; margin-top: 8px;">+ Add Choice</button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+              
+              <select formControlName="assignedTo" multiple style="flex: 1.5; height: 42px;">
+                <option value="" disabled>Assign to...</option>
+                @for (member of allMembers; track member.id) {
+                  <option [value]="member.id">{{ member.displayName }}</option>
+                }
+              </select>
+
+              <input type="number" formControlName="timeLimit" placeholder="Time Limit (Mins)" style="width: 140px; height: 42px;">
+              <input type="number" formControlName="xpReward" placeholder="XP" style="width: 80px; height: 42px;">
+
+              @if (taskForm.get('type')?.value !== 'quiz') {
+                <div class="file-upload-wrapper" style="position: relative; display: flex; align-items: center; flex: 1; max-width: 180px;">
+                  <input type="file" (change)="onFileSelected($event)" id="taskFile" style="display: none;">
+                  <label for="taskFile" class="btn-secondary" style="margin:0; padding: 10px 15px; cursor: pointer; border-radius: 8px; border: 1px dashed #30363d; color: var(--text-muted); font-size: 13px; text-align: center; width: 100%;">
+                    {{ selectedFileName || '📎 Reference File' }}
+                  </label>
+                </div>
+              }
+
+              <button type="submit" class="btn-primary" [disabled]="taskForm.invalid || isCreating || isUploading" style="flex: 1; height: 42px; font-weight: bold; min-width: 120px;">
+                {{ isUploading ? 'Uploading...' : (isCreating ? 'Saving...' : '+ Create Task') }}
+              </button>
+            </div>
+
+          </form>
+          </div>
+        </div>
+    }
+
+    <div class="kanban-board">
+      @for (col of columns; track col.status) {
+        <div class="kanban-column">
+          <div class="column-header">
+            <h3>{{ col.label }}</h3>
+            <span class="badge">{{ col.tasks.length }}</span>
+          </div>
+
+          <div cdkDropList [cdkDropListData]="col.tasks" class="task-list"
+               (cdkDropListDropped)="drop($event, col.status)" [id]="col.status"
+               [cdkDropListConnectedTo]="['todo', 'inprogress', 'review', 'completed']">
+            
+            @for (task of col.tasks; track task.id || $index) {
+              <div class="task-card glass-card" cdkDrag (click)="openTask(task)">
+  
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div class="priority-tag" [ngClass]="task.priority"></div>
+                    
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                      @if (user.role === 'admin') {
+                        <button class="btn-icon" (click)="openAssignModal(task); $event.stopPropagation()" style="background: transparent; border: 1px solid #30363d; color: #8b949e; border-radius: 4px; padding: 2px 6px; font-size: 11px; cursor: pointer;">
+                          👥 Assign
+                        </button>
+                      }
+
+                      @if (user.role === 'admin' && task.status === 'review') {
+                        <span class="badge badge-warning" style="font-size: 10px; background: rgba(249, 202, 36, 0.2); color: #f9ca24; padding: 2px 6px; border-radius: 4px;">Needs Approval</span>
+                      }
+                      @if (user.role !== 'admin' && task.status === 'todo') {
+                        <span class="badge badge-action" style="font-size: 10px; background: rgba(67, 233, 123, 0.2); color: #43e97b; padding: 2px 6px; border-radius: 4px;">▶ Start Test</span>
+                      }
+                    </div>
+                </div>
+
+                <h4>{{ task.title }}</h4>
+                
+                <div class="card-footer">
+                    <span class="xp-tag">+{{ task.xpReward }} XP</span>
+                    
+                    <div class="assignee-stack" [title]="getMemberNames(task.assignedTo)">
+                    @for (userId of ensureArray(task.assignedTo); track userId) {
+                        <div class="assignee-avatar">{{ getInitial(userId) }}</div>
+                    }
+                    </div>
+                </div>
+                </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (selectedTask) {
+      <div class="modal-overlay fade-in" (click)="closeModal()">
+        
+        <div class="modal-content glass-card" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2>Edit Task</h2>
+            <button class="close-btn" (click)="closeModal()">✕</button>
+            
+            <button class="btn-icon" (click)="openAssignModal(selectedTask)" title="Assign Users">
+                👥 Assign
+              </button>
+          </div>
+
+          <form [formGroup]="editForm" (ngSubmit)="saveTaskDetails()">
+            
+            <div class="form-group">
+              <label>Title</label>
+              <input type="text" formControlName="title">
+            </div>
+
+            <div class="form-group">
+              <label>Description</label>
+              <textarea formControlName="description" rows="4" placeholder="Add some details..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Priority</label>
+              <select formControlName="priority">
+                <option value="low">Low Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="high">High Priority</option>
+              </select>
+            </div>
+
+            @if (modalError) {
+              <div class="error-banner">
+                {{ modalError }}
+              </div>
+            }
+
+            <div class="modal-actions">
+              @if (user.role === 'admin') {
+                <button type="button" class="btn-danger" (click)="deleteTask()" [disabled]="isSaving">
+                  🗑️ Delete Task
+                </button>
+              }
+              
+              <div class="right-actions">
+                <button type="button" class="btn-secondary" (click)="closeModal()" [disabled]="isSaving">Cancel</button>
+                
+                <button type="submit" class="btn-primary" [disabled]="editForm.invalid || isSaving">
+                  {{ isSaving ? 'Saving...' : 'Save Changes' }}
+                </button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    }
+
+  </div>
+  
+}
+@if (showAssignModal) {
+  <div class="modal-overlay fade-in" (click)="closeAssignModal()" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px);">
+    
+    <div class="modal-content glass-card" (click)="$event.stopPropagation()" style="background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 24px; width: 400px; max-width: 90%; box-shadow: 0 15px 30px rgba(0,0,0,0.5);">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="margin: 0; color: white;">👥 Assign Task</h3>
+        <button (click)="closeAssignModal()" style="background: transparent; border: none; color: #8b949e; cursor: pointer; font-size: 18px;">✕</button>
+      </div>
+
+      <p style="color: #8b949e; font-size: 13px; margin-bottom: 16px;">
+        Assign <strong style="color: #58a6ff;">{{ taskToAssign?.title }}</strong> to multiple users below. Hold Ctrl/Cmd to select multiple.
+      </p>
+
+      <select multiple [(ngModel)]="selectedAssignees" style="width: 100%; height: 150px; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 8px; padding: 8px; margin-bottom: 24px;">
+        @for (member of allMembers; track member.id) {
+          <option [value]="member.id" style="padding: 8px; border-bottom: 1px solid #161b22;">
+            {{ member.displayName }}
+          </option>
+        }
+      </select>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <button class="btn-secondary" (click)="closeAssignModal()" style="padding: 8px 16px; border-radius: 6px; background: transparent; border: 1px solid #30363d; color: white; cursor: pointer;">Cancel</button>
+        <button class="btn-primary" [disabled]="isAssigning" (click)="saveAssignment()" style="padding: 8px 16px; border-radius: 6px; background: #2ea043; border: none; color: white; cursor: pointer; font-weight: bold;">
+          {{ isAssigning ? 'Saving...' : 'Save Assignments' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

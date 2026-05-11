@@ -1,0 +1,386 @@
+.profile-layout {
+    padding: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.btn-back {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 24px;
+    transition: 0.2s;
+
+    &:hover {
+        color: white;
+        transform: translateX(-4px);
+    }
+}
+
+/* --- Hero Section --- */
+.profile-hero {
+    padding: 40px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    margin-bottom: 32px;
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(0, 0, 0, 0.2) 100%);
+
+    .avatar-xl {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        font-size: 36px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 25px rgba(108, 99, 255, 0.3);
+    }
+
+    .hero-details {
+        flex: 1;
+
+        h1 {
+            margin: 0 0 8px 0;
+            font-size: 32px;
+            color: white;
+        }
+
+        .role-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+    }
+
+    .total-xp {
+        text-align: right;
+
+        .value {
+            display: block;
+            font-size: 40px;
+            font-weight: 800;
+            color: #43E97B;
+            font-family: monospace;
+        }
+
+        .label {
+            color: var(--text-muted);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    }
+}
+
+/* --- Content Grid --- */
+.content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 32px;
+
+    @media (max-width: 900px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.section-title {
+    font-size: 20px;
+    color: white;
+    margin: 0 0 20px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 12px;
+}
+
+/* --- Grading Cards --- */
+.grading-card {
+    padding: 24px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    border: 1px solid rgba(249, 202, 36, 0.2);
+    /* Subtle yellow border for "Needs Review" */
+
+    .task-info {
+        h3 {
+            margin: 0 0 8px 0;
+            color: white;
+            font-size: 18px;
+        }
+
+        .submitted-date {
+            margin: 0 0 12px 0;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+    }
+
+    .btn-view-work {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: 0.2s;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+    }
+
+    .grading-controls {
+        display: flex;
+        gap: 16px;
+        align-items: flex-end;
+
+        .xp-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            label {
+                font-size: 12px;
+                color: var(--text-muted);
+                font-weight: 600;
+            }
+
+            .xp-input {
+                background: rgba(0, 0, 0, 0.3);
+                border: 1px solid var(--glass-border);
+                color: #43E97B;
+                padding: 10px;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: bold;
+                width: 80px;
+                text-align: center;
+
+                &:focus {
+                    outline: none;
+                    border-color: #43E97B;
+                }
+            }
+        }
+
+        .btn-approve {
+            background: #43E97B;
+            color: #1a1a2e;
+            border: none;
+            font-weight: 800;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+
+            &:hover {
+                background: #32d66b;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(67, 233, 123, 0.3);
+            }
+        }
+    }
+}
+
+/* --- History Cards --- */
+.history-card {
+    padding: 16px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+
+    .history-info h4 {
+        margin: 0 0 4px 0;
+        color: white;
+        font-size: 15px;
+    }
+
+    .history-info p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 12px;
+    }
+
+    .earned-xp {
+        font-weight: bold;
+        color: var(--primary);
+        font-family: monospace;
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+    font-style: italic;
+    border-radius: 16px;
+}
+
+/* =========================================
+   ☀️ LIGHT THEME OVERRIDES 
+   ========================================= */
+
+:host-context(body.light-theme) {
+
+    .btn-back {
+        color: #636e72;
+
+        &:hover {
+            color: #2d3436;
+        }
+    }
+
+    .profile-hero {
+        background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(255, 255, 255, 0.8) 100%);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+
+        .hero-details h1 {
+            color: #2d3436;
+        }
+
+        .hero-details .role-badge {
+            background: rgba(0, 0, 0, 0.05);
+            color: #636e72;
+        }
+
+        .total-xp .label {
+            color: #636e72;
+        }
+
+        .total-xp .value {
+            color: #218c74;
+        }
+
+        /* Slightly darker green for readability on light background */
+    }
+
+    .section-title {
+        color: #2d3436;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .grading-card {
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid rgba(249, 202, 36, 0.5);
+        /* Keep the yellow, but make it visible on white */
+
+        .task-info h3 {
+            color: #2d3436;
+        }
+
+        .task-info .submitted-date {
+            color: #636e72;
+        }
+
+        .btn-view-work {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #2d3436;
+
+            &:hover {
+                background: rgba(0, 0, 0, 0.1);
+            }
+        }
+
+        .grading-controls .xp-input-group {
+            label {
+                color: #636e72;
+            }
+
+            .xp-input {
+                background: #ffffff;
+                color: #218c74;
+                border: 1px solid rgba(0, 0, 0, 0.1);
+            }
+        }
+    }
+
+    .history-card {
+        background: rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+
+        .history-info h4 {
+            color: #2d3436;
+        }
+
+        .history-info p {
+            color: #636e72;
+        }
+    }
+
+    .empty-state {
+        color: #636e72;
+        background: rgba(255, 255, 255, 0.5);
+    }
+}
+
+/* =========================================
+   🛡️ MODAL STYLES 
+   ========================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    width: 90%;
+    max-width: 600px;
+    background: #1e1e2f;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Light Theme overrides for the Modal */
+:host-context(body.light-theme) {
+    .modal-content {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+
+        .modal-header h2 {
+            color: #2d3436 !important;
+        }
+
+        .close-btn {
+            color: #2d3436 !important;
+        }
+
+        .code-box {
+            background: #f1f2f6 !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .code-box p {
+            color: #218c74 !important;
+        }
+    }
+}

@@ -1,0 +1,108 @@
+<div class="profile-layout fade-in">
+  
+  <button class="btn-back" (click)="goBack()">← Back to Roster</button>
+
+  @if (isLoading) {
+    <div class="loading-state">Loading student data...</div>
+  } @else {
+    
+    <div class="profile-hero glass-card">
+      <div class="avatar-xl">{{ memberDetails.displayName.charAt(0) }}</div>
+      <div class="hero-details">
+        <h1>{{ memberDetails.displayName }}</h1>
+        <p class="role-badge">{{ memberDetails.role | titlecase }}</p>
+      </div>
+      <div class="total-xp">
+        <span class="value">{{ memberDetails.xp }}</span>
+        <span class="label">Total XP</span>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      
+      <div class="grading-section">
+        <h2 class="section-title">📝 Needs Grading ({{ tasksPendingReview.length }})</h2>
+        
+        @if (tasksPendingReview.length === 0) {
+          <div class="empty-state glass-card">No tasks pending review! 🎉</div>
+        }
+
+        <div class="task-list">
+          @for (task of tasksPendingReview; track task.attemptId) {
+            <div class="grading-card glass-card">
+              
+              <div class="task-info">
+                <h3>{{ task.title }}</h3>
+                <p class="submitted-date">Submitted: {{ task.submittedAt | date:'medium' }}</p>
+                <button class="btn-view-work" (click)="viewWork(task)">📄 View Student Work</button>
+              </div>
+
+              <div class="grading-controls">
+                @if (task.taskType === 'quiz') {
+                  <button class="btn-primary glow-btn" (click)="gradeQuiz(task.attemptId)" style="width: 100%;">
+                    📝 Evaluate & Assign XP
+                  </button>
+                } 
+                @else {
+                  <div class="xp-input-group">
+                    <label>Award XP (Base: {{ task.baseXp }})</label>
+                    <input type="number" [(ngModel)]="task.customXp" class="xp-input">
+                  </div>
+                  <button class="btn-approve" (click)="approveTask(task)">Approve & Grant</button>
+                }
+              </div>
+
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="history-section">
+        <h2 class="section-title">✅ Completed Tasks</h2>
+        
+        <div class="task-list">
+          @for (task of tasksCompleted; track task.attemptId) {
+            <div class="history-card glass-card">
+              <div class="history-info">
+                <h4>{{ task.title }}</h4>
+                <p>{{ task.completedAt | date:'shortDate' }}</p>
+              </div>
+              <div class="earned-xp">+{{ task.earnedXp }} XP</div>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+  }
+</div>
+@if (selectedWork) {
+  <div class="modal-overlay fade-in" (click)="closeWorkModal()">
+    <div class="modal-content glass-card" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header">
+        <h2 style="color: white; margin: 0;">Submission Details</h2>
+        <button class="close-btn" (click)="closeWorkModal()" style="background: transparent; border: none; color: white; font-size: 20px; cursor: pointer;">✕</button>
+      </div>
+
+      <div class="work-details" style="margin-top: 20px;">
+        <p style="color: var(--text-muted); font-size: 13px; margin: 0 0 4px 0;">Task Title</p>
+        <p style="color: white; font-size: 18px; margin: 0 0 20px 0;">{{ selectedWork.title }}</p>
+
+        <p style="color: var(--text-muted); font-size: 13px; margin: 0 0 4px 0;">Student's Answer</p>
+        
+        <div class="code-box" style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); min-height: 150px;">
+          <p style="color: #43E97B; font-family: monospace; margin: 0; font-size: 14px;">
+            // Task submitted successfully.<br>
+            // (Student execution payload will appear here)
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 24px; display: flex; justify-content: flex-end;">
+        <button class="btn-primary" (click)="closeWorkModal()" style="padding: 10px 20px; border-radius: 8px; background: var(--primary); color: white; border: none; cursor: pointer;">Close Window</button>
+      </div>
+
+    </div>
+  </div>
+}

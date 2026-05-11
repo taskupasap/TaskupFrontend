@@ -1,0 +1,83 @@
+<div class="dashboard-wrapper fade-in" *ngIf="(currentUser$ | async) as user">
+  
+  <div class="welcome-card glass-card">
+    <div class="text">
+      <h1>Welcome back, {{ user.displayName }}! 👋</h1>
+      <p>Let's manage those {{ taskLabel | lowercase }}s today.</p>
+    </div>
+  </div>
+
+  <div class="main-stats-grid">
+    
+    @if (user.role === 'admin') {
+      <div class="admin-roster-container">
+        
+        <div class="roster-header glass-card">
+          <div class="info">
+            <h2 style="margin: 0 0 4px 0; color: white;">👥 Team Roster</h2>
+            <p style="margin: 0; color: var(--text-muted); font-size: 14px;">Manage your members and grade their submissions here.</p>
+          </div>
+          
+          <div class="code-box">
+            <span style="font-size: 12px; color: var(--text-muted); margin-right: 8px;">Workspace ({{ orgName }}):</span>
+            <span class="code">{{ inviteCode || '------' }}</span>
+            <button class="btn-regen" [class.spinning]="isRegenerating" (click)="regenerateCode(user.orgId)" title="Regenerate Code">🔄</button>
+          </div>
+        </div>
+
+        <div class="roster-grid">
+          @for (member of allMembers; track member.id) {
+            <div class="member-card glass-card" (click)="openMemberProfile(member)">
+              
+              @if (member.pendingReviews && member.pendingReviews > 0) {
+                <div class="notification-badge" title="Pending Reviews">{{ member.pendingReviews }}</div>
+              }
+
+              <div class="avatar-lg">{{ member.displayName.charAt(0).toUpperCase() }}</div>
+              
+              <div class="member-details">
+                <h3 style="margin: 0 0 8px 0; font-size: 18px; color: white;">{{ member.displayName }}</h3>
+                <span class="role-tag" [class.admin]="member.role === 'admin'">{{ member.role | titlecase }}</span>
+              </div>
+              
+              <div class="stats">
+                <div class="stat">
+                  <span class="value xp">{{ member.xp }}</span>
+                  <span class="label">Total XP</span>
+                </div>
+              </div>
+
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+    @if (user.role !== 'admin') {
+      <div class="glass-card widget performers-widget">
+        <div class="widget-header">
+          <h3>🔥 Top Performers</h3>
+          <a routerLink="/gamification" class="view-link">View All</a>
+        </div>
+
+        <div class="list">
+          @for (performer of topPerformers; track performer.id; let i = $index) {
+            <div class="list-item">
+              <div class="mini-avatar">{{ performer.displayName.charAt(0).toUpperCase() }}</div>
+              <div class="m-info">
+                <span class="m-name" style="margin: 0; font-weight: bold; color: white;">{{ performer.displayName }}</span>
+                <span class="m-role" style="font-size: 12px; color: var(--accent); font-weight: bold;">{{ performer.xp }} XP</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="glass-card widget center-content">
+        <app-xp-ring [xp]="user.xp || 0" [level]="user.level || 1"></app-xp-ring>
+      </div>
+    }
+
+  </div>
+</div>

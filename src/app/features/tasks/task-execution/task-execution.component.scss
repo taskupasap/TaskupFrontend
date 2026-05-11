@@ -1,0 +1,534 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* --- Core Variables --- */
+$bg-main: #0d1117;
+/* Deep GitHub Dark */
+$bg-panel: #161b22;
+/* Slightly lighter panel */
+$bg-terminal: #010409;
+/* Pure dark for terminal */
+$border: #30363d;
+/* Subtle divider */
+$accent: #58a6ff;
+/* Neon Blue */
+$success: #2ea043;
+/* Hacker Green */
+$danger: #f85149;
+/* Alert Red */
+$text-main: #c9d1d9;
+$text-muted: #8b949e;
+
+.execution-layout {
+    min-height: 100vh;
+    background: $bg-main;
+    color: $text-main;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- Custom Developer Scrollbars --- */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* --- Top Header (Glassmorphism) --- */
+.workspace-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background: rgba(22, 27, 34, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid $border;
+    z-index: 10;
+
+    .title-area {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+
+        h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+    }
+
+    .timer-badge {
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid $border;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        font-weight: 500;
+        color: $text-main;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+
+        &.danger {
+            color: $danger;
+            border-color: rgba(248, 81, 73, 0.5);
+            animation: pulse-danger 2s infinite;
+        }
+    }
+}
+
+/* --- Split Pane Layout --- */
+.split-pane {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    padding: 12px;
+    gap: 12px;
+}
+
+.pane {
+    background: $bg-panel;
+    border-radius: 12px;
+    border: 1px solid $border;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* LEFT: Problem Description */
+.problem-pane {
+    flex: 0 0 40%;
+    /* Takes exactly 40% width */
+    padding: 24px;
+    overflow-y: auto;
+
+    h3 {
+        color: white;
+        margin-top: 0;
+        font-size: 18px;
+        border-bottom: 1px solid $border;
+        padding-bottom: 12px;
+    }
+
+    .description {
+        line-height: 1.7;
+        color: $text-main;
+        font-size: 15px;
+    }
+
+    .example-box {
+        background: $bg-terminal;
+        border: 1px solid $border;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+
+        p {
+            margin: 4px 0;
+        }
+
+        strong {
+            color: $accent;
+        }
+    }
+}
+
+/* RIGHT: Editor & Terminal */
+.editor-pane {
+    flex: 1;
+    /* Takes remaining 60% */
+
+    .editor-toolbar {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 16px;
+        background: rgba(255, 255, 255, 0.02);
+        border-bottom: 1px solid $border;
+
+        .lang-select {
+            background: $bg-terminal;
+            color: $text-main;
+            border: 1px solid $border;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+
+            &:focus {
+                border-color: $accent;
+            }
+        }
+    }
+
+    .code-editor {
+        flex: 1;
+        background: $bg-panel;
+        color: #e6edf3;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        line-height: 1.6;
+        padding: 20px;
+        border: none;
+        resize: none;
+        transition: all 0.2s ease;
+
+        &:focus {
+            outline: none;
+            box-shadow: inset 0 0 0 1px rgba(88, 166, 255, 0.3);
+        }
+    }
+}
+
+/* --- Mac-Style Terminal --- */
+.terminal-box {
+    height: 220px;
+    background: $bg-terminal;
+    border-top: 1px solid $border;
+    display: flex;
+    flex-direction: column;
+
+    .terminal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 16px;
+        background: #111418;
+        border-bottom: 1px solid $border;
+
+        .mac-dots {
+            display: flex;
+            gap: 6px;
+
+            span {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+            }
+
+            .red {
+                background: #ff5f56;
+            }
+
+            .yellow {
+                background: #ffbd2e;
+            }
+
+            .green {
+                background: #27c93f;
+            }
+        }
+    }
+
+    pre {
+        margin: 0;
+        padding: 16px;
+        flex: 1;
+        overflow-y: auto;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        color: $text-main;
+    }
+
+    &.passed pre {
+        color: $success;
+    }
+
+    &.failed pre {
+        color: $danger;
+    }
+}
+
+/* --- Buttons --- */
+.btn-primary {
+    background: $success;
+    color: #ffffff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+        background: #3fb950;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(46, 160, 67, 0.2);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.btn-run {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    border: 1px solid $border;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: $text-muted;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+    }
+}
+
+.btn-icon {
+    background: transparent;
+    color: $text-muted;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+    }
+}
+
+@keyframes pulse-danger {
+    0% {
+        box-shadow: 0 0 0 0 rgba(248, 81, 73, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 6px rgba(248, 81, 73, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(248, 81, 73, 0);
+    }
+}
+
+/* =========================================
+   🚀 PREMIUM SUCCESS SCREEN & ANIMATIONS
+   ========================================= */
+
+.success-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    padding: 20px;
+    background: radial-gradient(circle at center, #161b22 0%, #0d1117 100%);
+}
+
+.premium-glass-card {
+    background: rgba(22, 27, 34, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 50px 40px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: scale(0.95);
+    animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero-icon-wrapper {
+    margin-bottom: 24px;
+
+    .icon-hero {
+        font-size: 72px;
+        line-height: 1;
+        display: inline-block;
+    }
+}
+
+.success-message {
+    color: #8b949e;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 16px 0 32px 0;
+}
+
+/* --- Animated Button --- */
+.action-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    /* 🚨 Adds space between the two buttons */
+    flex-wrap: wrap;
+    /* Ensures they stack neatly on mobile phones */
+}
+
+/* Secondary Button (Glass Outline) */
+.glow-btn-alt {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 14px 28px;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #c9d1d9;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 255, 255, 0.05);
+    }
+}
+
+/* Primary Button (Green Glow) */
+.glow-btn {
+    background: linear-gradient(135deg, #2ea043 0%, #238636 100%);
+    border: 1px solid #3fb950;
+    padding: 14px 28px;
+    /* Adjusted slightly to match the secondary button size */
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(46, 160, 67, 0.3);
+
+    .arrow {
+        transition: transform 0.3s ease;
+    }
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(46, 160, 67, 0.5);
+        background: linear-gradient(135deg, #3fb950 0%, #2ea043 100%);
+
+        .arrow {
+            transform: translateX(4px);
+        }
+    }
+}
+
+/* =========================================
+   🎬 KEYFRAME ANIMATIONS
+   ========================================= */
+
+/* The card scales up beautifully when it appears */
+@keyframes popIn {
+    0% {
+        transform: scale(0.95) translateY(20px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Staggered fade ups for text */
+.fade-up {
+    opacity: 0;
+    animation: fadeUpAnim 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.delay-1 {
+    animation-delay: 0.2s;
+}
+
+.delay-2 {
+    animation-delay: 0.4s;
+}
+
+.delay-3 {
+    animation-delay: 0.6s;
+}
+
+@keyframes fadeUpAnim {
+    0% {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Floating animation for the success icon */
+.float-anim {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* Shaking animation if time expires */
+.timeout-shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px) rotate(-5deg);
+    }
+
+    75% {
+        transform: translateX(5px) rotate(5deg);
+    }
+}

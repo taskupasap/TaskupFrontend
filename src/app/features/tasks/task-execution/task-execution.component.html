@@ -1,0 +1,275 @@
+<div class="execution-layout fade-in">
+  
+  @if (viewState === 'intro') {
+    <div class="intro-wrapper" style="display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px;">
+      
+      <div class="focus-card glass-card" style="max-width: 650px; width: 100%; text-align: left; padding: 40px;">
+        
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
+          <div class="icon-hero" style="margin: 0; width: 60px; height: 60px; font-size: 30px;">
+            {{ taskDetails.type === 'coding' ? '💻' : (taskDetails.type === 'quiz' ? '📝' : '📚') }}
+          </div>
+          <div>
+            <span style="background: rgba(108, 99, 255, 0.2); color: #6C63FF; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; text-transform: uppercase;">
+              {{ taskDetails.type || 'Assessment' }}
+            </span>
+            <h1 style="margin: 8px 0 0 0; font-size: 24px;">{{ taskDetails.title }}</h1>
+          </div>
+        </div>
+
+        <div class="instructions-section" style="margin-bottom: 30px;">
+          <h3 style="color: var(--text-muted); font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">Assessment Guidelines</h3>
+          
+          <ul style="padding-left: 20px; margin: 0; color: #dcdde1; line-height: 1.6;">
+            @for (rule of taskInstructions; track $index) {
+              <li style="margin-bottom: 12px;">{{ rule }}</li>
+            }
+          </ul>
+        </div>
+
+        <div style="background: rgba(255, 71, 87, 0.1); border: 1px solid rgba(255, 71, 87, 0.2); border-radius: 8px; padding: 16px; margin-bottom: 30px; display: flex; gap: 16px; align-items: center;">
+          <span style="font-size: 24px;">⏱️</span>
+          <div>
+            <strong style="color: #ff4757; display: block; margin-bottom: 4px;">Strict Time Limit: {{ taskDetails.timeLimitSeconds / 60 }} Minutes</strong>
+            <span style="color: var(--text-muted); font-size: 13px;">The timer will not pause if you close the browser. If time expires, your current progress will be automatically submitted.</span>
+          </div>
+        </div>
+
+        <div class="consent-box" style="margin-bottom: 30px; padding: 16px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+          <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer;">
+            <input type="checkbox" [(ngModel)]="consentGiven" style="margin-top: 4px; width: 18px; height: 18px; accent-color: #6C63FF;">
+            <span style="color: white; font-size: 14px; line-height: 1.5;">
+              I have read and understood the instructions. I agree to abide by the academic integrity policies and understand that tab-switching and external assistance may be monitored.
+            </span>
+          </label>
+        </div>
+
+        <div class="actions" style="display: flex; justify-content: flex-end; gap: 16px;">
+          <button class="btn-cancel" (click)="goBackToDashboard()" [disabled]="isProcessing">Cancel & Return</button>
+          
+          <button class="btn-primary start-btn" 
+                  [disabled]="isProcessing || !consentGiven" 
+                  [style.opacity]="!consentGiven ? '0.5' : '1'"
+                  (click)="startTest()">
+            {{ isProcessing ? 'Initializing Environment...' : 'I Agree, Start Assessment' }}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+
+  @if (viewState === 'active') {
+    <div class="workspace-header">
+      <div class="title-area">
+        <button class="btn-icon" (click)="goBackToDashboard()" title="Exit Task">←</button>
+        <h2>{{ taskDetails.title }}</h2>
+      </div>
+      
+      @if (taskDetails.type !== 'course') {
+        <div class="timer-badge" [class.danger]="timeLeft < 60">⏱️ {{ timerDisplay }}</div>
+      }
+      
+      <button class="btn-primary submit-btn" 
+              [disabled]="isProcessing || 
+                         (taskDetails.type === 'coding' && (testStatus === 'running' || timeLeft <= 0)) ||
+                         (taskDetails.type === 'quiz' && (!isQuizComplete() || timeLeft <= 0)) ||
+                         (taskDetails.type === 'course' && !hasReadDocument)" 
+              (click)="submitTest()">
+        {{ isProcessing ? 'Saving...' : (taskDetails.type === 'coding' ? 'Cloud Submit ☁️' : (taskDetails.type === 'quiz' ? 'Submit Answers ✓' : 'Complete Reading ✓')) }}
+      </button>
+    </div>
+
+    @if (taskDetails.type === 'coding') {
+      <div class="split-pane">
+        <div class="problem-pane pane">
+          <h3>📋 Problem Statement</h3>
+          <p class="description" style="white-space: pre-wrap;">{{ taskDetails.description }}</p>
+          
+          @if (taskDetails.attachmentUrl) {
+            <div class="attachment-box" style="margin: 20px 0;">
+              <h4 style="margin: 0 0 8px 0; color: #58a6ff; font-size: 14px; text-transform: uppercase;">📎 Reference Material</h4>
+              <a [href]="taskDetails.attachmentUrl" target="_blank" style="display: block; border-radius: 8px; border: 1px solid #30363d; overflow: hidden;">
+                <img [src]="taskDetails.attachmentUrl" alt="Task Attachment" style="width: 100%; display: block;">
+              </a>
+            </div>
+          }
+        </div>
+
+        <div class="editor-pane pane">
+          <div class="editor-toolbar">
+            <select [(ngModel)]="selectedLangId" (ngModelChange)="saveState()" class="lang-select" [disabled]="isProcessing">
+              @for (lang of availableLanguages; track lang.id) {
+                <option [value]="lang.id">{{ lang.name }}</option>
+              }
+            </select>
+            
+            <button class="btn-run" [disabled]="isProcessing" (click)="runTests()">
+              {{ testStatus === 'running' ? '⚙️ Compiling...' : '▶ Run Code' }}
+            </button>
+          </div>
+
+          <textarea class="code-editor" [(ngModel)]="codeContent" (ngModelChange)="saveState()" spellcheck="false" [disabled]="isProcessing"></textarea>
+
+          <div class="terminal-box" [ngClass]="testStatus">
+            <div class="terminal-header">
+              <div class="mac-dots">
+                <span class="red"></span><span class="yellow"></span><span class="green"></span>
+              </div>
+              @if (testMetrics) {
+                <span [style.color]="testStatus === 'passed' ? '#2ea043' : '#f85149'" style="font-size: 12px; font-family: 'JetBrains Mono'; font-weight: bold;">
+                  Status: {{ testStatus | uppercase }}
+                </span>
+              } @else {
+                <span style="color: #8b949e; font-size: 12px; font-family: 'JetBrains Mono';">Console Output</span>
+              }
+            </div>
+            <pre>{{ terminalOutput }}</pre>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (taskDetails.type === 'quiz') {
+      <div class="split-pane" style="justify-content: center;">
+        <div class="pane" style="max-width: 800px; width: 100%; padding: 30px; overflow-y: auto; gap: 24px;">
+          
+          <div style="border-bottom: 1px solid #30363d; padding-bottom: 16px;">
+            <h3 style="margin: 0; color: #58a6ff;">📝 Multiple Choice Assessment</h3>
+            <p style="color: #8b949e; margin: 8px 0 0 0; font-size: 14px;">Please answer all the questions listed below. Once you select an option, your choice will automatically save.</p>
+          </div>
+
+          @for (q of taskDetails.questions; track $index; let qIdx = $index) {
+            <div style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px;">
+              <h4 style="margin: 0 0 16px 0; font-size: 16px; color: white; display: flex; gap: 8px; align-items: flex-start;">
+                <span style="color: #58a6ff;">Q{{ qIdx + 1 }}.</span>
+                <span>{{ q.questionText }}</span>
+              </h4>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                @for (opt of q.options; track $index) {
+                  <button type="button" 
+                          (click)="selectOption(qIdx, opt)"
+                          [style.background]="quizAnswers[qIdx] === opt ? 'rgba(88, 166, 255, 0.15)' : '#0d1117'"
+                          [style.border-color]="quizAnswers[qIdx] === opt ? '#58a6ff' : '#30363d'"
+                          style="text-align: left; padding: 12px 16px; border-radius: 6px; border: 1px solid; color: white; cursor: pointer; transition: all 0.2s ease;">
+                    <span style="margin-right: 8px; color: #8b949e;">•</span> {{ opt }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (taskDetails.type === 'course') {
+      <div class="split-pane">
+        <div class="pane" style="flex: 1.2; padding: 30px; overflow-y: auto;">
+          <h3 style="margin-top: 0; color: #58a6ff; font-size: 20px; border-bottom: 1px solid #30363d; padding-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <span>📚</span> Study Documentation
+          </h3>
+          
+          <div style="line-height: 1.8; color: #e6edf3; font-size: 15px; white-space: pre-wrap; margin-bottom: 24px;">
+            {{ taskDetails.readContent }}
+          </div>
+        </div>
+
+        <div class="pane" style="flex: 0.8; padding: 30px; justify-content: space-between; background: #111418; overflow-y: auto;">
+          <div style="margin-bottom: 24px;">
+            <h4 style="margin-top: 0; color: #8b949e; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; margin-bottom: 16px;">Attached Study Guides</h4>
+            
+            @switch (getAttachmentType()) {
+              
+              @case ('image') {
+                <div style="background: #0d1117; border: 1px solid #30363d; border-radius: 8px; overflow: hidden; margin-bottom: 20px;">
+                  <a [href]="taskDetails.attachmentUrl" target="_blank">
+                    <img [src]="taskDetails.attachmentUrl" alt="Reference attachment" style="width: 100%; display: block; max-height: 250px; object-fit: contain; padding: 8px;">
+                  </a>
+                </div>
+              }
+
+              @case ('pdf') {
+                <div style="margin-bottom: 20px;">
+                  <app-pdf-viewer [pdfUrl]="taskDetails.attachmentUrl"></app-pdf-viewer>
+                  
+                  <div style="padding: 12px; text-align: center; margin-top: 12px;">
+                    <a [href]="taskDetails.attachmentUrl" target="_blank" download class="btn-run" style="display: inline-block; text-decoration: none; font-size: 12px; color: #58a6ff;">
+                      🗖 View / Download Original File
+                    </a>
+                  </div>
+                </div>
+              }
+
+              @case ('document') {
+                <div style="background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px;">
+                  <div style="font-size: 32px; margin-bottom: 10px;">💾</div>
+                  <h5 style="margin: 0 0 6px 0; color: white; font-size: 14px;">{{ getAttachmentFileName() }}</h5>
+                  <p style="font-size: 12px; color: #8b949e; margin: 0 0 16px 0;">This document format cannot be rendered inline. Please download it to complete your reading.</p>
+                  <a [href]="taskDetails.attachmentUrl" download target="_blank" class="btn-run" style="display: inline-block; text-decoration: none; background: #58a6ff; color: #0d1117; font-weight: bold; padding: 8px 16px;">
+                    📥 Download Document
+                  </a>
+                </div>
+              }
+
+              @default {
+                <p style="color: var(--text-muted); font-size: 13px;">No supplementary attachment is assigned to this course.</p>
+              }
+            }
+          </div>
+
+          <div style="background: rgba(88, 166, 255, 0.05); border: 1px solid rgba(88, 166, 255, 0.15); border-radius: 8px; padding: 20px;">
+            <label style="display: flex; gap: 12px; cursor: pointer; align-items: flex-start;">
+              <input type="checkbox" [(ngModel)]="hasReadDocument" style="width: 20px; height: 20px; margin-top: 2px; accent-color: #2ea043;">
+              <div>
+                <span style="font-weight: bold; color: white; display: block; margin-bottom: 4px;">Sign-off Reading Confirmation</span>
+                <span style="color: #8b949e; font-size: 13px; line-height: 1.4;">I verify that I have read the provided text and auxiliary reference files completely and am ready to finalize my training.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    }
+  }
+
+  @if (viewState === 'submitted') {
+    <div class="success-container">
+      <div class="premium-glass-card success-card">
+        
+        <div class="hero-icon-wrapper">
+          <div class="icon-hero" 
+               [ngClass]="{'timeout-shake': submissionType === 'timeout', 'float-anim': submissionType !== 'timeout'}" 
+               [style.text-shadow]="submissionType === 'timeout' ? '0 0 20px rgba(255, 71, 87, 0.5)' : '0 0 20px rgba(67, 233, 123, 0.5)'">
+            {{ submissionType === 'timeout' ? '⏱️' : (taskDetails.type === 'coding' ? '🚀' : (taskDetails.type === 'quiz' ? '🎯' : '🎓')) }}
+          </div>
+        </div>
+        
+        <h1 class="fade-up delay-1" [style.color]="submissionType === 'timeout' ? '#ff4757' : 'white'">
+          {{ submissionType === 'timeout' ? 'Time Expired!' : 
+             (taskDetails.type === 'coding' ? 'Code Submitted!' : 
+             (taskDetails.type === 'quiz' ? 'Assessment Complete!' : 'Course Finished!')) }}
+        </h1>
+        
+        <p class="fade-up delay-2 success-message">
+          {{ submissionType === 'timeout' 
+              ? 'Your session timed out. Your current progress has been automatically saved and submitted for review.' 
+              : (taskDetails.type === 'coding' ? 'Your code was securely transmitted to our servers and awaits Admin review.' : 
+                (taskDetails.type === 'quiz' ? 'Your answers have been securely locked and recorded. Pending final grading.' : 
+                'Great job! Your reading verification is logged and your progress has been updated.')) }}
+        </p>
+        
+        <div class="fade-up delay-3 action-row">
+          <button class="btn-secondary glow-btn-alt" (click)="goToTasks()">
+            <span>📋 Return to Tasks</span>
+          </button>
+          
+          <button class="btn-primary glow-btn" (click)="goBackToDashboard()">
+            <span>Return to Dashboard</span>
+            <span class="arrow">→</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  }
+</div>

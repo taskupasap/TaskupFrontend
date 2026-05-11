@@ -1,0 +1,280 @@
+/* --- Main Layout --- */
+.dashboard-wrapper {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.welcome-card {
+    padding: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.15) 0%, transparent 100%);
+    border-radius: 16px;
+}
+
+.welcome-card h1 {
+    font-size: 28px;
+    margin: 0 0 8px 0;
+    color: white;
+}
+
+.welcome-card p {
+    color: #a0a0a0;
+    margin: 0;
+}
+
+.main-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+/* --- Shared Widget Styles (For Members) --- */
+.widget {
+    padding: 24px;
+    min-height: 250px;
+    border-radius: 16px;
+}
+
+.widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.widget-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #6C63FF;
+}
+
+.view-link {
+    color: #6C63FF;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    margin-bottom: 8px;
+}
+
+.mini-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #6C63FF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+}
+
+.center-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* --- Regenerate Button Animation --- */
+.btn-regen {
+    background: transparent;
+    border: 1px solid #6C63FF;
+    color: #6C63FF;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 16px;
+    margin-left: 12px;
+}
+
+.btn-regen:hover {
+    background: #6C63FF;
+    color: white;
+}
+
+.btn-regen.spinning {
+    animation: spin 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================================
+   👑 ADMIN ROSTER STYLES 
+   ========================================= */
+.admin-roster-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    grid-column: 1 / -1;
+    /* Spans full width of the grid */
+    width: 100%;
+}
+
+.roster-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 32px;
+    border-radius: 16px;
+}
+
+.code-box {
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px 12px 8px 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+
+    .code {
+        font-family: monospace;
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: 4px;
+        color: #F9CA24;
+    }
+}
+
+.roster-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.member-card {
+    padding: 32px 24px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+
+    &:hover {
+        transform: translateY(-4px);
+        border-color: #6C63FF;
+        box-shadow: 0 10px 30px rgba(108, 99, 255, 0.15);
+    }
+
+    .avatar-lg {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: #6C63FF;
+        color: white;
+        font-size: 28px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .role-tag {
+        background: rgba(255, 255, 255, 0.1);
+        color: #a0a0a0;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+
+        &.admin {
+            background: rgba(249, 202, 36, 0.1);
+            color: #f9ca24;
+            border: 1px solid rgba(249, 202, 36, 0.3);
+        }
+    }
+
+    .stats {
+        margin-top: 24px;
+        width: 100%;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 16px;
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+
+            .value.xp {
+                color: #43E97B;
+                font-weight: 800;
+                font-size: 18px;
+                font-family: monospace;
+            }
+
+            .label {
+                font-size: 11px;
+                color: #a0a0a0;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+        }
+    }
+
+    /* Red Notification Dot */
+    .notification-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #ff4757;
+        color: white;
+        font-weight: bold;
+        font-size: 12px;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
+        animation: pulseAlert 2s infinite;
+    }
+}
+
+@keyframes pulseAlert {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7);
+    }
+
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(255, 71, 87, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 71, 87, 0);
+    }
+}

@@ -1,0 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&family=Syne:wght@500;600;700;800&display=swap');
+
+:root {
+    // Brand Colors
+    --primary: #6C63FF;
+    --primary-dark: #5A52E0;
+    --secondary: #FF6584;
+    --accent: #43E97B;
+    --warning: #F9CA24;
+    --danger: #FF4757;
+    --info: #1E90FF;
+
+    // Backgrounds & Surfaces (Dark theme default)
+    --bg-base: #0B0F19;
+    --bg-surface: #151A28;
+    --text-main: #FFFFFF;
+    --text-muted: #94A3B8;
+
+    // Glassmorphism
+    --glass-bg: rgba(25, 30, 45, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-blur: blur(16px);
+
+    // Typography
+    --font-primary: 'Syne', sans-serif;
+    --font-body: 'Outfit', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-primary);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+// Glassmorphism Utility Class
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+// Global Button Reset & Styles
+button {
+    font-family: var(--font-body);
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease-out;
+    font-weight: 600;
+
+    &:active {
+        transform: scale(0.96);
+    }
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+
+    &:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(108, 99, 255, 0.4);
+    }
+}
+
+// Animated Aurora Background (For Auth/Loading)
+.aurora-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    background: var(--bg-base);
+    overflow: hidden;
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        width: 60vw;
+        height: 60vw;
+        border-radius: 50%;
+        filter: blur(80px);
+        opacity: 0.4;
+        animation: float 20s infinite ease-in-out alternate;
+    }
+
+    &::before {
+        background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+        top: -20%;
+        left: -10%;
+    }
+
+    &::after {
+        background: radial-gradient(circle, var(--secondary) 0%, transparent 70%);
+        bottom: -20%;
+        right: -10%;
+        animation-delay: -10s;
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate(10%, 10%) scale(1.1);
+    }
+}
+
+// Custom Scrollbar
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* =========================================
+   ☀️ LIGHT THEME OVERRIDES 
+   ========================================= */
+body.light-theme {
+    /* Override the background */
+    --bg-dark: #f0f4f8;
+    background: var(--bg-dark);
+
+    /* Flip text colors to dark */
+    color: #2d3436;
+    --text-muted: #636e72;
+
+    /* Change the glass borders to be dark/gray instead of white/transparent */
+    --glass-border: rgba(0, 0, 0, 0.1);
+}
+
+/* Update Glass Cards for Light Mode */
+body.light-theme .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+}
+
+/* Update Sidebar & Topbar specific backgrounds */
+body.light-theme .sidebar,
+body.light-theme .topbar {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Update Inputs, Selects, Textareas to look good on white */
+body.light-theme input,
+body.light-theme select,
+body.light-theme textarea {
+    background: rgba(255, 255, 255, 0.6);
+    color: #2d3436;
+}
+
+/* Update Modal Content background */
+body.light-theme .modal-content {
+    background: #ffffff;
+}
+
+/* Override any stray white text */
+body.light-theme h2,
+body.light-theme h3,
+body.light-theme h4,
+body.light-theme .name,
+body.light-theme .close-btn {
+    color: #2d3436;
+}
+
+/* Make nav items darker when hovering in light mode */
+body.light-theme .nav-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--primary);
+}

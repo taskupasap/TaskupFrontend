@@ -1,0 +1,107 @@
+# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# Compiled output
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Node
+/node_modules
+npm-debug.log
+yarn-error.log
+
+# IDEs and editors
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# Miscellaneous
+/.angular/cache
+.sass-cache/
+/connect.lock
+/coverage
+/libpeerconnection.log
+testem.log
+/typings
+__screenshots__/
+
+# System files
+.DS_Store
+Thumbs.db
+
+
+# Node dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Angular build outputs
+dist/
+out-tsc/
+bazel-out/
+
+# Angular local workspace/cache
+.angular/
+.nx/
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# IDEs and Editors
+.idea/
+.project
+.vscode/
+*.swp
+*.sublime-workspace
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Secrets & Environment files
+# (If you create a local .env file to hide Firebase keys)
+.env
+.env.local
+.env.*.local
+# Node dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Angular build outputs
+dist/
+out-tsc/
+.angular/
+.nx/
+
+# Coverage reports
+coverage/
+
+# 🚨 SECURITY: Ignore Environment Credentials
+src/environments/environment.ts
+src/environments/environment.development.ts
+src/environments/environment.*.ts
+
+# IDEs and Editors
+.idea/
+.project
+.vscode/
+*.swp
+*.code-workspace
+
+# OS Files
+.DS_Store
+Thumbs.db
