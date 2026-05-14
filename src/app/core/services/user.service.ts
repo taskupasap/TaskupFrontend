@@ -29,4 +29,13 @@ export class UserService {
             xp: increment(amount)
         });
     }
+    // 🚨 NEW: Extremely fast Firebase-native Join Workspace method
+    async joinWorkspace(uid: string, orgId: string) {
+        const userRef = doc(this.firestore, `users/${uid}`);
+
+        // This instantly updates the database AND triggers your AuthService's onSnapshot!
+        await updateDoc(userRef, {
+            orgId: orgId.trim()
+        });
+    }
 }

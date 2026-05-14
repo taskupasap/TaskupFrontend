@@ -58,6 +58,7 @@ export interface Task {
     updatedAt: Date;
     completedAt: Date | null;
     attachmentUrl?: string;
+    pendingReviewCount?: number;
 }
 export interface LeaderboardUser {
     id: string;

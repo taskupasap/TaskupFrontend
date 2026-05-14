@@ -384,3 +384,147 @@
         }
     }
 }
+
+/* =========================================
+   CUSTOM TOAST NOTIFICATION (UI/UX UPGRADE)
+   ========================================= */
+.custom-toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    width: 340px;
+    background: rgba(22, 27, 34, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    overflow: hidden;
+    animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+
+    &.success {
+        border-left: 4px solid #2ea043;
+
+        .toast-icon {
+            background: rgba(46, 160, 67, 0.1);
+            color: #2ea043;
+        }
+
+        .toast-progress {
+            background: #2ea043;
+        }
+    }
+
+    &.error {
+        border-left: 4px solid #f85149;
+
+        .toast-icon {
+            background: rgba(248, 81, 73, 0.1);
+            color: #f85149;
+        }
+
+        .toast-progress {
+            background: #f85149;
+        }
+    }
+
+    .toast-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .toast-content {
+        flex: 1;
+
+        h4 {
+            margin: 0 0 4px 0;
+            font-size: 15px;
+            color: #e6edf3;
+        }
+
+        p {
+            margin: 0 0 10px 0;
+            font-size: 13px;
+            color: #8b949e;
+            line-height: 1.4;
+        }
+
+        .toast-stats {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            font-weight: bold;
+
+            .toast-score {
+                color: #58a6ff;
+                background: rgba(88, 166, 255, 0.1);
+                padding: 4px 8px;
+                border-radius: 4px;
+            }
+
+            .toast-xp {
+                color: #f9ca24;
+                background: rgba(249, 202, 36, 0.1);
+                padding: 4px 8px;
+                border-radius: 4px;
+            }
+        }
+    }
+
+    .toast-close {
+        background: transparent;
+        border: none;
+        color: #8b949e;
+        cursor: pointer;
+        font-size: 14px;
+        padding: 4px;
+        transition: color 0.2s;
+
+        &:hover {
+            color: white;
+        }
+    }
+
+    /* The timer line at the bottom */
+    .toast-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        width: 100%;
+        animation: shrinkProgress 4s linear forwards;
+    }
+}
+
+@keyframes slideInRight {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes shrinkProgress {
+    0% {
+        width: 100%;
+    }
+
+    100% {
+        width: 0%;
+    }
+}

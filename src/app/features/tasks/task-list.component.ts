@@ -10,11 +10,11 @@ import { environment } from '@env/environment.development';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
-
+import { TerminologyPipe } from '../../core/pipes/terminology.pipe'; // Adjust path if needed
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, DragDropModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, DragDropModule, ReactiveFormsModule, FormsModule, TerminologyPipe],
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.scss'
 })
@@ -28,12 +28,14 @@ export class TaskListComponent implements OnInit {
   private router = inject(Router);
 
   allMembers: LeaderboardUser[] = [];
-  columns = [
-    { label: 'To Do', status: 'todo', tasks: [] as Task[] },
-    { label: 'In Progress', status: 'in-progress', tasks: [] as Task[] },
-    { label: 'Review', status: 'review', tasks: [] as Task[] },
-    { label: 'Completed', status: 'completed', tasks: [] as Task[] }
-  ];
+  // columns = [
+  //   { label: 'To Do', status: 'todo', tasks: [] as Task[] },
+  //   { label: 'In Progress', status: 'in-progress', tasks: [] as Task[] },
+  //   { label: 'Review', status: 'review', tasks: [] as Task[] },
+  //   { label: 'Completed', status: 'completed', tasks: [] as Task[] }
+  // ];
+  columns: { label: string; status: string; tasks: Task[] }[] = [];
+
 
   taskForm: FormGroup = this.fb.group({
     type: ['coding', Validators.required], // 🚨 Default Type
@@ -132,8 +134,16 @@ export class TaskListComponent implements OnInit {
       });
   }
 
+  // 1. Remove the hardcoded 4 columns and start empty so it builds dynamically
+
   loadTasks(user: any) {
     const orgId = user.orgId;
+
+    // 1. Determine the terminology safely
+    const isSchool = (localStorage.getItem('workspaceType') || '').toLowerCase() === 'school';
+
+    // 2. Clear columns while loading so the UI doesn't crash on undefined variables
+    this.columns = [];
 
     this.taskService.getTasks(orgId).subscribe({
       next: (tasks) => {
@@ -143,22 +153,43 @@ export class TaskListComponent implements OnInit {
 
           let visibleTasks = tasks;
 
-          if (!isAdmin) {
+          if (isAdmin) {
+            // 🚨 THE FIX: These are calculated inside the subscribe now!
+            const masterTasks = visibleTasks.filter(t => !t.pendingReviewCount || Number(t.pendingReviewCount) === 0);
+            const pendingTasks = visibleTasks.filter(t => t.pendingReviewCount && Number(t.pendingReviewCount) > 0);
+
+            // Log the pending tasks so you can see them in your F12 Chrome console!
+            console.log("Total Tasks Found with Pending Reviews:", pendingTasks.length);
+
+            // 3. Build the Admin columns using the terminology logic
+            this.columns = [
+              { label: isSchool ? '📋 Master Assignments' : '📋 Master Tasks', status: 'master', tasks: masterTasks },
+              { label: '🔴 Pending Reviews', status: 'review', tasks: pendingTasks }
+            ];
+          } else {
+            // 🎓 Student gets the standard 4 Kanban columns
             visibleTasks = tasks.filter(t => {
               if (!t.assignedTo) return false;
               return Array.isArray(t.assignedTo)
                 ? t.assignedTo.includes(myId)
                 : t.assignedTo === myId;
             });
-          }
 
-          this.columns = this.columns.map(col => ({
-            ...col,
-            tasks: visibleTasks.filter(t => {
-              const taskStatus = (t.status || (t as any).Status || '').toLowerCase();
-              return taskStatus === col.status.toLowerCase();
-            })
-          }));
+            this.columns = [
+              { label: 'To Do', status: 'todo', tasks: [] },
+              { label: 'In Progress', status: 'in-progress', tasks: [] },
+              { label: 'Review', status: 'review', tasks: [] },
+              { label: 'Completed', status: 'completed', tasks: [] }
+            ];
+
+            this.columns = this.columns.map(col => ({
+              ...col,
+              tasks: visibleTasks.filter(t => {
+                const taskStatus = (t.status || (t as any).Status || '').toLowerCase();
+                return taskStatus === col.status.toLowerCase();
+              })
+            }));
+          }
 
           this.cdr.detectChanges();
         });
@@ -343,16 +374,32 @@ export class TaskListComponent implements OnInit {
   }
 
   approveTask(task: any) {
-    this.taskService.approveTaskAttempt(task.id, task.xpReward).subscribe({
+    // 1. Safely extract the student ID (handling both arrays and single strings)
+    const studentId = Array.isArray(task.assignedTo) && task.assignedTo.length > 0
+      ? task.assignedTo[0]
+      : task.assignedTo;
+
+    if (!studentId) {
+      alert('Error: Cannot approve this task because no user is assigned to it.');
+      return;
+    }
+
+    // 2. Pass the studentId as the required 3rd argument!
+    this.taskService.approveTaskAttempt(task.id, task.xpReward, studentId).subscribe({
       next: () => {
         alert(`Success! ${task.xpReward} XP granted.`);
+
+        // Refresh the tasks to update the UI
         this.auth.currentUser$.subscribe(user => {
           if (user && user.orgId) {
             this.loadTasks(user);
           }
         }).unsubscribe();
       },
-      error: (err) => console.error('Approval failed', err)
+      error: (err) => {
+        console.error('Approval failed', err);
+        alert('Server Error: Could not approve task.');
+      }
     });
   }
 

@@ -4,124 +4,155 @@
     @if (user.role === 'admin') {
       <div class="admin-task-bar glass-card">
         <div class="creator-card glass-card">
-            <h3 style="margin-top: 0; margin-bottom: 16px; color: white;">Create Coding Challenge</h3>
+            <h3 style="margin-top: 0; margin-bottom: 16px; color: white;">Create {{ 'Task' | term }}</h3>
             
-            <form [formGroup]="taskForm" (ngSubmit)="createTask(orgId)" class="task-form" style="background: rgba(22, 27, 34, 0.9); padding: 24px; border-radius: 12px; border: 1px solid #30363d; margin-bottom: 24px;">
+            <form [formGroup]="taskForm" (ngSubmit)="createTask(orgId)" class="modern-task-form">
             
-            <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-              <select formControlName="type" (change)="onTypeChange()" style="flex: 1; height: 42px; font-weight: bold; border-color: #58a6ff;">
-                <option value="coding">💻 Coding Challenge</option>
-                <option value="quiz">📝 Interactive Quiz</option>
-                <option value="course">📚 Course Material (Reading)</option>
-              </select>
-
-              <input type="text" formControlName="title" placeholder="Title (e.g. Intro to Arrays)" style="flex: 2; height: 42px;">
-              
-              <select formControlName="priority" style="flex: 1; height: 42px;">
-                <option value="low">Low Priority</option>
-                <option value="medium">Medium Priority</option>
-                <option value="high">High Priority</option>
-              </select>
-            </div>
-
-            <div style="margin-bottom: 16px;">
-              <textarea formControlName="description" placeholder="Problem Statement / Overview / Reading Instructions..." style="width: 100%; min-height: 80px; background: rgba(0,0,0,0.2); border: 1px solid #30363d; color: white; padding: 10px; border-radius: 8px;"></textarea>
-            </div>
-
-            @if (taskForm.get('type')?.value === 'coding') {
-              <div style="margin-bottom: 16px;">
-                <textarea formControlName="startingCode" placeholder="Starting Code Template (e.g. function main() { })" style="width: 100%; min-height: 80px; font-family: 'JetBrains Mono', monospace; background: #010409; border: 1px solid #30363d; color: #39e672; padding: 10px; border-radius: 8px;"></textarea>
-              </div>
-            }
-
-            @if (taskForm.get('type')?.value === 'course') {
-              <div style="margin-bottom: 16px;">
-                <textarea formControlName="readContent" placeholder="Paste structural text content, documentation, or study instructions here..." style="width: 100%; min-height: 120px; background: rgba(0,0,0,0.2); border: 1px solid #30363d; color: white; padding: 10px; border-radius: 8px;"></textarea>
-              </div>
-            }
-
-            @if (taskForm.get('type')?.value === 'quiz') {
-              <div class="quiz-builder" style="border: 1px dashed #30363d; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: rgba(0,0,0,0.15);">
+              <div class="form-section">
+                <h4 class="section-header">📝 Basic Details</h4>
                 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                  <h4 style="margin: 0; color: #58a6ff;">Questions List</h4>
-                  
-                  <div style="background: rgba(46, 160, 67, 0.15); border: 1px solid #2ea043; padding: 6px 12px; border-radius: 20px; color: #39e672; font-size: 13px; font-weight: bold;">
-                    Total Task XP: {{ questions.length * taskForm.get('xpPerQuestion')?.value }} XP
-                  </div>
-
-                  <button type="button" class="btn-run" (click)="addQuestion()" style="padding: 4px 10px;">+ Add Question</button>
+                <div class="input-group">
+                  <label>{{ 'Task' | term }} Title</label>
+                  <input type="text" formControlName="title" placeholder="e.g. Introduction to Arrays">
                 </div>
 
-                <div formArrayName="questions">
-                  @for (q of questions.controls; track $index; let qIdx = $index) {
-                    <div [formGroupName]="qIdx" style="background: #161b22; border: 1px solid #30363d; padding: 16px; border-radius: 8px; margin-bottom: 12px; position: relative;">
-                      
-                      <button type="button" (click)="removeQuestion(qIdx)" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; color: #f85149; cursor: pointer;">✕ Delete</button>
-                      
-                      <label style="display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px;">Question #{{ qIdx + 1 }}</label>
-                      <input type="text" formControlName="questionText" placeholder="Enter your question here..." style="width: 90%; margin-bottom: 12px;">
+                <div class="grid-2">
+                  <div class="input-group">
+                    <label>Challenge Type</label>
+                    <select formControlName="type" (change)="onTypeChange()">
+                      <option value="coding">💻 Coding Challenge</option>
+                      <option value="quiz">📝 Interactive Quiz</option>
+                      <option value="course">📚 Course Material</option>
+                    </select>
+                  </div>
 
-                      <div formArrayName="options" style="padding-left: 12px; border-left: 2px solid #30363d; margin-top: 8px;">
-                        <span style="font-size: 12px; font-weight: bold; color: #8b949e; display: block; margin-bottom: 8px;">Options (Select the correct answer)</span>
-                        
-                        @for (opt of getOptions(qIdx).controls; track $index; let optIdx = $index) {
-                          <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
-                            
-                           <input type="radio" 
-                                   [name]="'correctOption_' + qIdx" 
-                                   [checked]="questions.value[qIdx].correctOptionIndex === optIdx"
-                                   (click)="toggleCorrectOption(qIdx, optIdx, $event)"
-                                   style="width: 18px; height: 18px; accent-color: #2ea043; cursor: pointer;"
-                                   title="Mark as correct answer">
+                  <div class="input-group">
+                    <label>Priority</label>
+                    <select formControlName="priority">
+                      <option value="low">🟢 Low</option>
+                      <option value="medium">🟡 Medium</option>
+                      <option value="high">🔴 High</option>
+                    </select>
+                  </div>
+                </div>
 
-                            <input type="text" [formControlName]="optIdx" placeholder="Choice option..." style="flex: 1; font-size: 13px; padding: 6px;">
-                            
-                            @if (getOptions(qIdx).length > 2) {
-                              <button type="button" (click)="removeOption(qIdx, optIdx)" style="background: transparent; border: none; color: #ff4757; cursor: pointer;">✕</button>
-                            }
+                <div class="input-group" style="margin-bottom: 0;">
+                  <label>Description & Instructions</label>
+                  <textarea formControlName="description" placeholder="Provide a detailed overview of the problem, reading instructions, or task guidelines..."></textarea>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h4 class="section-header">🧠 {{ 'Task' | term }} Content</h4>
+
+                @if (taskForm.get('type')?.value === 'coding') {
+                  <div class="input-group" style="margin-bottom: 0;">
+                    <label style="color: #39e672;">Starting Code Template</label>
+                    <textarea formControlName="startingCode" placeholder="// Write the initial code structure here..." style="min-height: 140px; font-family: 'JetBrains Mono', monospace; color: #39e672; background: #010409;"></textarea>
+                  </div>
+                }
+
+                @if (taskForm.get('type')?.value === 'course') {
+                  <div class="input-group" style="margin-bottom: 0;">
+                    <label style="color: #a371f7;">Reading Material Content</label>
+                    <textarea formControlName="readContent" placeholder="Paste structural text content, documentation, or study instructions here..." style="min-height: 140px;"></textarea>
+                  </div>
+                }
+
+                @if (taskForm.get('type')?.value === 'quiz') {
+                  <div class="quiz-builder">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                      <span style="font-size: 13px; font-weight: bold; color: #8b949e;">Build your questions below</span>
+                      <button type="button" class="btn-secondary" (click)="addQuestion()" style="padding: 6px 12px; font-size: 12px; border-radius: 4px;">+ Add Question</button>
+                    </div>
+
+                    <div formArrayName="questions">
+                      @for (q of questions.controls; track $index; let qIdx = $index) {
+                        <div [formGroupName]="qIdx" style="background: #161b22; border: 1px solid #30363d; padding: 16px; border-radius: 8px; margin-bottom: 16px; position: relative;">
+                          
+                          <button type="button" (click)="removeQuestion(qIdx)" style="position: absolute; top: 12px; right: 12px; background: transparent; border: 1px solid #f85149; border-radius: 4px; color: #f85149; padding: 4px 8px; font-size: 11px; cursor: pointer;">✕ Remove</button>
+                          
+                          <div class="input-group">
+                            <label>Question #{{ qIdx + 1 }}</label>
+                            <input type="text" formControlName="questionText" placeholder="Enter the question here..." style="width: 85%;">
                           </div>
-                        }
-                        <button type="button" (click)="addOption(qIdx)" style="background: transparent; border: none; color: #58a6ff; font-size: 12px; cursor: pointer; margin-top: 8px;">+ Add Choice</button>
+
+                          <div formArrayName="options" style="padding-left: 16px; border-left: 2px solid #30363d; margin-top: 12px;">
+                            <label style="font-size: 12px; margin-bottom: 8px; display: block;">Answer Options (Select correct one)</label>
+                            
+                            @for (opt of getOptions(qIdx).controls; track $index; let optIdx = $index) {
+                              <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 8px;">
+                                <input type="radio" [name]="'correctOption_' + qIdx" [checked]="questions.value[qIdx].correctOptionIndex === optIdx" (click)="toggleCorrectOption(qIdx, optIdx, $event)" style="width: 16px; height: 16px; accent-color: #2ea043; cursor: pointer; margin: 0;">
+                                <input type="text" [formControlName]="optIdx" placeholder="Option text..." style="flex: 1; padding: 6px 10px;">
+                                @if (getOptions(qIdx).length > 2) {
+                                  <button type="button" (click)="removeOption(qIdx, optIdx)" style="background: transparent; border: none; color: #8b949e; cursor: pointer; font-size: 16px;">×</button>
+                                }
+                              </div>
+                            }
+                            <button type="button" (click)="addOption(qIdx)" style="background: transparent; border: 1px dashed #30363d; color: #58a6ff; font-size: 12px; cursor: pointer; padding: 6px; width: 100%; border-radius: 4px; margin-top: 4px;">+ Add Option</button>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <div class="form-section">
+                <h4 class="section-header">⚙️ Configuration & Rewards</h4>
+                
+                <div class="input-group">
+                  <label>Assign To (Hold CTRL/CMD to select multiple)</label>
+                  <select formControlName="assignedTo" multiple>
+                    @for (member of allMembers; track member.id) {
+                      <option [value]="member.id">{{ member.displayName }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="grid-3">
+                  <div class="input-group">
+                    <label>Time Limit (Mins)</label>
+                    <input type="number" formControlName="timeLimit" placeholder="30">
+                  </div>
+
+                  <div class="input-group">
+                    @if (taskForm.get('type')?.value === 'quiz') {
+                      <label style="color: #2ea043;">XP / Question</label>
+                      <input type="number" formControlName="xpPerQuestion" style="background: rgba(46, 160, 67, 0.1); border-color: #2ea043; color: #39e672; font-weight: bold;">
+                    } @else {
+                      <label style="color: #f9ca24;">Total XP Reward</label>
+                      <input type="number" formControlName="xpReward" style="background: rgba(249, 202, 36, 0.1); border-color: #f9ca24; color: #f9ca24; font-weight: bold;">
+                    }
+                  </div>
+
+                  @if (taskForm.get('type')?.value !== 'quiz') {
+                    <div class="input-group">
+                      <label>Supporting File (Optional)</label>
+                      <div class="file-upload-wrapper" style="position: relative;">
+                        <input type="file" (change)="onFileSelected($event)" id="taskFile" style="display: none;">
+                        <label for="taskFile" style="display: flex; align-items: center; justify-content: center; height: 40px; margin: 0; cursor: pointer; border-radius: 6px; border: 1px dashed #8b949e; color: #c9d1d9; font-size: 13px; background: rgba(255,255,255,0.05); transition: 0.2s;">
+                          {{ selectedFileName || '📎 Browse File...' }}
+                        </label>
                       </div>
                     </div>
                   }
                 </div>
               </div>
-            }
 
-            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-              
-              <select formControlName="assignedTo" multiple style="flex: 1.5; height: 42px;">
-                <option value="" disabled>Assign to...</option>
-                @for (member of allMembers; track member.id) {
-                  <option [value]="member.id">{{ member.displayName }}</option>
-                }
-              </select>
+              <div class="submit-bar">
+                <button type="submit" class="btn-primary" [disabled]="taskForm.invalid || isCreating || isUploading">
+                  {{ isUploading ? 'Uploading Attachment...' : (isCreating ? 'Saving Database...' : '✨ Create ' + ('Task' | term)) }}
+                </button>
+              </div>
 
-              <input type="number" formControlName="timeLimit" placeholder="Time Limit (Mins)" style="width: 140px; height: 42px;">
-              <input type="number" formControlName="xpReward" placeholder="XP" style="width: 80px; height: 42px;">
-
-              @if (taskForm.get('type')?.value !== 'quiz') {
-                <div class="file-upload-wrapper" style="position: relative; display: flex; align-items: center; flex: 1; max-width: 180px;">
-                  <input type="file" (change)="onFileSelected($event)" id="taskFile" style="display: none;">
-                  <label for="taskFile" class="btn-secondary" style="margin:0; padding: 10px 15px; cursor: pointer; border-radius: 8px; border: 1px dashed #30363d; color: var(--text-muted); font-size: 13px; text-align: center; width: 100%;">
-                    {{ selectedFileName || '📎 Reference File' }}
-                  </label>
-                </div>
-              }
-
-              <button type="submit" class="btn-primary" [disabled]="taskForm.invalid || isCreating || isUploading" style="flex: 1; height: 42px; font-weight: bold; min-width: 120px;">
-                {{ isUploading ? 'Uploading...' : (isCreating ? 'Saving...' : '+ Create Task') }}
-              </button>
-            </div>
-
-          </form>
+            </form>
           </div>
         </div>
     }
 
-    <div class="kanban-board">
+    <div class="kanban-board" [style.grid-template-columns]="user.role === 'admin' ? '1fr 1fr' : 'repeat(4, 1fr)'">
+      
       @for (col of columns; track col.status) {
         <div class="kanban-column">
           <div class="column-header">
@@ -131,10 +162,11 @@
 
           <div cdkDropList [cdkDropListData]="col.tasks" class="task-list"
                (cdkDropListDropped)="drop($event, col.status)" [id]="col.status"
-               [cdkDropListConnectedTo]="['todo', 'inprogress', 'review', 'completed']">
+               [cdkDropListConnectedTo]="['todo', 'in-progress', 'review', 'completed']">
             
             @for (task of col.tasks; track task.id || $index) {
-              <div class="task-card glass-card" cdkDrag (click)="openTask(task)">
+              
+              <div class="task-card glass-card" cdkDrag [cdkDragDisabled]="user.role === 'admin'" (click)="openTask(task)">
   
                 <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
                     <div class="priority-tag" [ngClass]="task.priority"></div>
@@ -146,8 +178,11 @@
                         </button>
                       }
 
-                      @if (user.role === 'admin' && task.status === 'review') {
-                        <span class="badge badge-warning" style="font-size: 10px; background: rgba(249, 202, 36, 0.2); color: #f9ca24; padding: 2px 6px; border-radius: 4px;">Needs Approval</span>
+                      @if (user.role === 'admin' && (task.status === 'review' || ($any(task).pendingReviewCount - 0) > 0)) {
+                        <span class="badge badge-warning" style="font-size: 10px; background: rgba(249, 202, 36, 0.2); color: #f9ca24; padding: 4px 8px; border-radius: 4px; display: flex; align-items: center; gap: 6px;">
+                          <div style="width: 6px; height: 6px; background-color: #ff4757; border-radius: 50%; box-shadow: 0 0 4px #ff4757;"></div>
+                          {{ $any(task).pendingReviewCount }} Pending
+                        </span>
                       }
                       @if (user.role !== 'admin' && task.status === 'todo') {
                         <span class="badge badge-action" style="font-size: 10px; background: rgba(67, 233, 123, 0.2); color: #43e97b; padding: 2px 6px; border-radius: 4px;">▶ Start Test</span>
@@ -166,7 +201,7 @@
                     }
                     </div>
                 </div>
-                </div>
+              </div>
             }
           </div>
         </div>
@@ -178,7 +213,7 @@
         
         <div class="modal-content glass-card" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h2>Edit Task</h2>
+            <h2>Edit {{ 'Task' | term }}</h2>
             <button class="close-btn" (click)="closeModal()">✕</button>
             
             <button class="btn-icon" (click)="openAssignModal(selectedTask)" title="Assign Users">
@@ -216,7 +251,7 @@
             <div class="modal-actions">
               @if (user.role === 'admin') {
                 <button type="button" class="btn-danger" (click)="deleteTask()" [disabled]="isSaving">
-                  🗑️ Delete Task
+                  🗑️ Delete {{ 'Task' | term }}
                 </button>
               }
               
@@ -235,15 +270,15 @@
     }
 
   </div>
-  
 }
+
 @if (showAssignModal) {
   <div class="modal-overlay fade-in" (click)="closeAssignModal()" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px);">
     
     <div class="modal-content glass-card" (click)="$event.stopPropagation()" style="background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 24px; width: 400px; max-width: 90%; box-shadow: 0 15px 30px rgba(0,0,0,0.5);">
       
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h3 style="margin: 0; color: white;">👥 Assign Task</h3>
+        <h3 style="margin: 0; color: white;">👥 Assign {{ 'Task' | term }}</h3>
         <button (click)="closeAssignModal()" style="background: transparent; border: none; color: #8b949e; cursor: pointer; font-size: 18px;">✕</button>
       </div>
 

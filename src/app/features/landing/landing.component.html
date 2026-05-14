@@ -1,0 +1,81 @@
+<canvas #particleCanvas id="particle-canvas"></canvas>
+
+<div class="landing-container">
+  
+  <nav class="navbar glass-card">
+    <div class="brand">
+      
+      <svg viewBox="0 0 100 100" class="custom-logo">
+        <defs>
+          <linearGradient id="techGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#58a6ff"/>
+            <stop offset="100%" stop-color="#00f2fe"/>
+          </linearGradient>
+        </defs>
+        <path d="M50 15 L85 50 L65 50 L65 85 L35 85 L35 50 L15 50 Z" fill="url(#techGrad)" opacity="0.9"/>
+        <circle cx="50" cy="30" r="5" fill="#0d1117"/>
+        <circle cx="50" cy="65" r="5" fill="#0d1117"/>
+        <circle cx="35" cy="50" r="4" fill="#0d1117"/>
+        <circle cx="65" cy="50" r="4" fill="#0d1117"/>
+        <path d="M50 30 L50 65 M35 50 L65 50" stroke="#0d1117" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      
+      <span class="logo-text">TaskUp</span>
+    </div>
+    <div class="nav-links">
+      <button class="btn-ghost" routerLink="/auth/login">Sign In</button>
+      <button class="btn-primary glow-btn" routerLink="/auth/register">Get Started</button>
+    </div>
+  </nav>
+
+  <header class="hero-section fade-in-up delay-1">
+    <div class="badge">✨ The Next Generation LMS & Workspace</div>
+    <h1>Elevate Your Team's <br><span class="gradient-text">Productivity & Learning</span></h1>
+    <p class="subtitle">A unified, gamified platform for companies, colleges, and schools to manage tasks, execute code, and track progress.</p>
+    <div class="hero-actions">
+      <button class="btn-primary large glow-btn" routerLink="/auth/register">Create a Workspace →</button>
+      <button class="btn-secondary large outline" routerLink="/join">Have an Invite Code?</button>
+    </div>
+  </header>
+
+  <section class="features-section fade-in-up delay-2">
+    <div class="feature-card glass-card">
+      <div class="icon">💻</div>
+      <h3>Live Code Execution</h3>
+      <p>Built-in IDE for coding challenges with instant cloud evaluation.</p>
+    </div>
+    <div class="feature-card glass-card">
+      <div class="icon">🎮</div>
+      <h3>Gamified Progress</h3>
+      <p>Earn XP, level up, and compete on the global leaderboard.</p>
+    </div>
+    <div class="feature-card glass-card">
+      <div class="icon">🏢</div>
+      <h3>Dynamic Workspaces</h3>
+      <p>Seamlessly adapt terminology for Corporate, College, or School environments.</p>
+    </div>
+  </section>
+
+  <section class="team-section fade-in-up delay-3">
+    <h2>Meet the Architects</h2>
+    <p class="team-subtitle">The brilliant minds behind TaskUp's infrastructure and design.</p>
+    
+    <div class="team-grid">
+      @for (dev of developers; track dev.name) {
+        <div class="dev-card glass-card">
+          <div class="avatar-ring">
+            <div class="avatar">{{ dev.emoji }}</div>
+          </div>
+          <h4>{{ dev.name }}</h4>
+          <span class="role">{{ dev.role }}</span>
+          <p class="bio">{{ dev.bio }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 TaskUp Platform. Built with ❤️ by the Dev Team.</p>
+  </footer>
+
+</div>

@@ -11,8 +11,13 @@ export class TaskService {
     private http = inject(HttpClient);
     private apiUrl = `${environment.apiUrl}/tasks`;
 
-    getTasks(orgId: string): Observable<Task[]> {
-        return this.http.get<Task[]>(`${this.apiUrl}/${orgId}`);
+    // 🚨 THE FIX: Added optional userId parameter
+    getTasks(orgId: string, userId?: string): Observable<any[]> {
+        let url = `${environment.apiUrl}/tasks/${orgId}`;
+        if (userId) {
+            url += `?userId=${userId}`;
+        }
+        return this.http.get<any[]>(url);
     }
 
     updateTaskStatus(taskId: string, status: string): Observable<any> {
@@ -37,9 +42,9 @@ export class TaskService {
     // --- NEW LMS ENDPOINTS ---
 
     // 1. Approve a task and grant XP (Admin only)
-    approveTaskAttempt(attemptId: string, xpReward: number): Observable<any> {
-        // Wrap the number in an object!
-        return this.http.post(`${environment.apiUrl}/tasks/attempts/${attemptId}/approve`, { xpReward: xpReward });
+    // 🚨 Add studentId parameter and payload
+    approveTaskAttempt(attemptId: string, xpReward: number, studentId: string): Observable<any> {
+        return this.http.post(`${environment.apiUrl}/tasks/attempts/${attemptId}/approve`, { xpReward, studentId });
     }
 
     // 2. Optional: Fetch tasks awaiting review (For Admin dashboard)

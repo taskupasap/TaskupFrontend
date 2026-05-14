@@ -5,10 +5,11 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { XpRingComponent } from './widgets/xp-ring.component';
 import { User, LeaderboardUser } from '../../core/models';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '@core/services/task.service';
+import { UserService } from '@core/services/user.service';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -22,6 +23,7 @@ export class DashboardComponent implements OnInit {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
   private taskService = inject(TaskService);
+  private userService = inject(UserService);
   public currentUser$: Observable<User | null> = this.authService.currentUser$;
 
   // State Variables
@@ -71,23 +73,18 @@ export class DashboardComponent implements OnInit {
     this.http.get<LeaderboardUser[]>(`${environment.apiUrl}/users/org/${orgId}/leaderboard`)
       .subscribe(members => {
 
-        // Fetch ALL tasks for the organization
-        this.taskService.getTasks(orgId).subscribe(tasks => {
+        // 🚨 THE FIX: Create a batch of requests to get the personal task progress for EACH member
+        const taskRequests = members.map(m => this.taskService.getTasks(orgId, m.id));
 
-          this.allMembers = members.map(member => {
-            const pendingCount = tasks.filter(t => {
-              // 1. Safety check if assignedTo exists
-              if (!t.assignedTo) return false;
+        // forkJoin runs all the requests in parallel and returns them in the exact same order
+        forkJoin(taskRequests).subscribe(resultsArray => {
 
-              // 2. Check if assigned
-              const isAssigned = Array.isArray(t.assignedTo)
-                ? t.assignedTo.includes(member.id)
-                : t.assignedTo === member.id;
+          this.allMembers = members.map((member, index) => {
+            const memberTasks = resultsArray[index]; // The tasks with THIS member's progress overlaid!
 
-              // 3. 🚨 Handle C# PascalCase vs Angular camelCase
+            const pendingCount = memberTasks.filter(t => {
               const taskStatus = (t.status || (t as any).Status || '').toLowerCase();
-
-              return isAssigned && taskStatus === 'review';
+              return taskStatus === 'review';
             }).length;
 
             return { ...member, pendingReviews: pendingCount };
@@ -141,5 +138,47 @@ export class DashboardComponent implements OnInit {
       .subscribe({
         error: (err) => console.error('Failed to remove member', err)
       });
+  }
+
+  // --- Workspace Onboarding State ---
+  showJoinModal = false;
+  joinCode = '';
+  isJoining = false;
+  joinError = '';
+
+  openJoinModal() {
+    this.showJoinModal = true;
+    this.joinCode = '';
+    this.joinError = '';
+  }
+
+  closeJoinModal() {
+    this.showJoinModal = false;
+  }
+
+  // Make sure to inject UserService at the top of your Dashboard class
+  // private userService = inject(UserService);
+
+  submitJoinCode(uid: string) {
+    if (!this.joinCode.trim()) {
+      this.joinError = 'Please enter a valid code.';
+      return;
+    }
+
+    this.isJoining = true;
+    this.joinError = '';
+
+    // Call our fast Firebase native method
+    this.userService.joinWorkspace(uid, this.joinCode).then(() => {
+      this.isJoining = false;
+      this.closeJoinModal();
+
+      // NO RELOAD NEEDED! Your AuthService onSnapshot will detect the change 
+      // and instantly load the Kanban board behind the modal!
+    }).catch(err => {
+      this.isJoining = false;
+      this.joinError = 'Invalid Workspace Code. Please try again.';
+      console.error('Join Error:', err);
+    });
   }
 }

@@ -11,7 +11,7 @@ import { PdfViewerComponent } from '../../../shared/components/pdf-viewer.compon
 @Component({
     selector: 'app-task-execution',
     standalone: true,
-    imports: [CommonModule, FormsModule, PdfViewerComponent, SafeUrlPipe],
+    imports: [CommonModule, FormsModule, PdfViewerComponent],
     templateUrl: './task-execution.component.html',
     styleUrl: './task-execution.component.scss'
 })
@@ -74,7 +74,11 @@ export class TaskExecutionComponent implements OnInit, OnDestroy {
                 timeLimitSeconds: task.timeLimitSeconds || task.TimeLimitSeconds || 1800,
                 attachmentUrl: task.attachmentUrl || task.AttachmentUrl || null,
                 readContent: task.readContent || task.ReadContent || '',
-                questions: task.questions || task.Questions || []
+                questions: task.questions || task.Questions || [],
+
+                // 🚨 THE FIX 1: Actually map the code fields so Angular can see them!
+                startingCode: task.startingCode || task.StartingCode || '',
+                codePayload: task.codePayload || task.CodePayload || ''
             };
 
             // 2. Load available languages if it's a coding task
@@ -90,6 +94,10 @@ export class TaskExecutionComponent implements OnInit, OnDestroy {
                     }
                     this.cdr.detectChanges();
                 });
+                // 🚨 THE FIX 2: Check the newly mapped fields directly!
+                this.codeContent = this.taskDetails.codePayload ||
+                    this.taskDetails.startingCode ||
+                    '// Write your code here...';
             }
 
             this.restoreState();
@@ -150,7 +158,7 @@ export class TaskExecutionComponent implements OnInit, OnDestroy {
                     this.updateTimerDisplay();
 
                     if (this.taskDetails.type === 'coding') {
-                        this.codeContent = parsed.codeContent || '';
+                        this.codeContent = parsed.codeContent || this.codeContent;
                         this.selectedLangId = parsed.selectedLangId || this.selectedLangId;
                     } else if (this.taskDetails.type === 'quiz') {
                         this.quizAnswers = parsed.quizAnswers || {};

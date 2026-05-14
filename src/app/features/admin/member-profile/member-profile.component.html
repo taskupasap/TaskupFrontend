@@ -77,32 +77,88 @@
   }
 </div>
 @if (selectedWork) {
-  <div class="modal-overlay fade-in" (click)="closeWorkModal()">
-    <div class="modal-content glass-card" (click)="$event.stopPropagation()">
+  <div class="modal-overlay" (click)="closeWorkModal()" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+    
+    <div class="modal-content" (click)="$event.stopPropagation()" style="width: 800px; max-width: 90vw; max-height: 85vh; background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 24px; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
       
-      <div class="modal-header">
-        <h2 style="color: white; margin: 0;">Submission Details</h2>
-        <button class="close-btn" (click)="closeWorkModal()" style="background: transparent; border: none; color: white; font-size: 20px; cursor: pointer;">✕</button>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #30363d; padding-bottom: 16px;">
+        <h2 style="margin: 0; color: #e6edf3; font-size: 18px;">📄 {{ selectedWork.title }} <span style="color: #8b949e; font-size: 14px; font-weight: normal;">- Student Submission</span></h2>
+        <button class="btn-close" (click)="closeWorkModal()" style="background: transparent; border: none; color: #8b949e; font-size: 20px; cursor: pointer; padding: 4px;">✕</button>
       </div>
 
-      <div class="work-details" style="margin-top: 20px;">
-        <p style="color: var(--text-muted); font-size: 13px; margin: 0 0 4px 0;">Task Title</p>
-        <p style="color: white; font-size: 18px; margin: 0 0 20px 0;">{{ selectedWork.title }}</p>
-
-        <p style="color: var(--text-muted); font-size: 13px; margin: 0 0 4px 0;">Student's Answer</p>
+      <div style="overflow-y: auto; flex: 1;">
         
-        <div class="code-box" style="background: rgba(0,0,0,0.3); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); min-height: 150px;">
-          <p style="color: #43E97B; font-family: monospace; margin: 0; font-size: 14px;">
-            // Task submitted successfully.<br>
-            // (Student execution payload will appear here)
-          </p>
-        </div>
-      </div>
+        @if (selectedWork.isLoading) {
+          <div style="padding: 40px; text-align: center; color: #58a6ff; font-weight: bold; animation: pulse 1.5s infinite;">
+            ⏳ Fetching student code from secure vault...
+          </div>
+        } 
+        
+        @else if (selectedWork.error) {
+          <div style="padding: 40px; text-align: center; color: #f85149; background: rgba(248, 81, 73, 0.1); border-radius: 8px; border: 1px solid rgba(248,81,73,0.3);">
+            ⚠️ Failed to retrieve the student's work.
+          </div>
+        } 
+        
+        @else {
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 12px 16px; border-radius: 8px; border: 1px solid #30363d;">
+            <div style="display: flex; gap: 24px;">
+              <span style="font-size: 13px; color: #8b949e;">📅 Logged: <strong style="color: #c9d1d9;">{{ selectedWork.SubmittedAt | date:'medium' }}</strong></span>
+              @if (selectedWork.taskType === 'coding') {
+                <span style="font-size: 13px; color: #8b949e;">💻 Language: <strong style="color: #c9d1d9;">{{ selectedWork.language || selectedWork.Language || 'Unknown' }}</strong></span>
+              }
+            </div>
+            <span style="font-size: 14px; color: #f9ca24; font-weight: bold; background: rgba(249, 202, 36, 0.1); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(249, 202, 36, 0.3);">
+              ⏱️ Time Taken: {{ selectedWork.timeTaken || 'Unknown' }}
+            </span>
+          </div>
+          
+          @if (selectedWork.taskType === 'coding') {
+            <div style="background: #010409; border: 1px solid #30363d; border-radius: 8px; padding: 16px; overflow-x: auto;">
+              <pre style="margin: 0; font-family: 'JetBrains Mono', monospace; color: #39e672; font-size: 14px; line-height: 1.5;"><code>{{ selectedWork.codePayload || '// Student submitted an empty file.' }}</code></pre>
+            </div>
+          }
 
-      <div class="modal-actions" style="margin-top: 24px; display: flex; justify-content: flex-end;">
-        <button class="btn-primary" (click)="closeWorkModal()" style="padding: 10px 20px; border-radius: 8px; background: var(--primary); color: white; border: none; cursor: pointer;">Close Window</button>
-      </div>
+          @if (selectedWork.taskType === 'course') {
+             <div style="padding: 30px 20px; background: rgba(46, 160, 67, 0.1); border: 1px solid #2ea043; color: #39e672; border-radius: 8px; text-align: center; font-size: 16px;">
+               ✅ The student has successfully read and digitally acknowledged the course material.
+             </div>
+          }
 
+          @if (selectedWork.taskType === 'quiz') {
+             <div style="background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 16px; color: #c9d1d9;">
+               <p style="margin-top: 0; color: #8b949e; font-size: 12px; font-weight: bold;">Raw Submission Payload (Auto-Evaluated Engine):</p>
+               <pre style="margin: 0; font-family: monospace; color: #58a6ff;">{{ selectedWork.codePayload }}</pre>
+               <p style="margin-bottom: 0; margin-top: 16px; font-size: 13px; color: #f9ca24;">* Note: Please use the "Evaluate Quiz" button to automatically grade this payload.</p>
+             </div>
+          }
+        }
+      </div>
+      
     </div>
+  </div>
+}
+
+@if (toastConfig.show) {
+  <div class="custom-toast" [ngClass]="toastConfig.type">
+    <div class="toast-icon">
+      {{ toastConfig.type === 'success' ? '✅' : '❌' }}
+    </div>
+    
+    <div class="toast-content">
+      <h4>{{ toastConfig.title }}</h4>
+      <p>{{ toastConfig.message }}</p>
+      
+      @if (toastConfig.score) {
+        <div class="toast-stats">
+          <span class="toast-score">🎯 Score: {{ toastConfig.score }}</span>
+          <span class="toast-xp">⭐ {{ toastConfig.xp }} XP Granted</span>
+        </div>
+      }
+    </div>
+
+    <button class="toast-close" (click)="toastConfig.show = false">✕</button>
+    <div class="toast-progress"></div>
   </div>
 }

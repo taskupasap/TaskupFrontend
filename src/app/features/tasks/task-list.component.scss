@@ -450,3 +450,104 @@
     text-align: center;
     margin-top: 8px;
 }
+
+/* =========================================
+   MODERN TASK CREATOR FORM
+   ========================================= */
+.modern-task-form {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+
+    .form-section {
+        background: #0d1117;
+        border: 1px solid #21262d;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+
+        .section-header {
+            font-size: 15px;
+            color: #58a6ff;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 12px;
+        }
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 16px;
+
+        label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #8b949e;
+        }
+
+        input,
+        select,
+        textarea {
+            background: #161b22;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 14px;
+            transition: all 0.2s;
+
+            &:focus {
+                border-color: #58a6ff;
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+            }
+        }
+
+        select[multiple] {
+            min-height: 100px;
+            padding: 8px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+    }
+
+    /* Responsive Grids */
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    .submit-bar {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 10px;
+
+        button {
+            padding: 14px 32px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(46, 160, 67, 0.2);
+        }
+    }
+}

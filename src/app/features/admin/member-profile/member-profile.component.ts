@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -21,6 +21,7 @@ export class MemberProfileComponent implements OnInit {
     private cdr = inject(ChangeDetectorRef);
     private taskService = inject(TaskService);
     private authService = inject(AuthService);
+    private ngZone = inject(NgZone);
 
     selectedWork: any = null;
     memberId = '';
@@ -31,6 +32,8 @@ export class MemberProfileComponent implements OnInit {
     tasksCompleted: any[] = [];
 
     isLoading = true;
+    // 🚨 NEW: State for our beautiful custom Toast notification
+    toastConfig = { show: false, title: '', message: '', score: '', xp: 0, type: 'success' };
 
     ngOnInit() {
         this.memberId = this.route.snapshot.paramMap.get('id') || '';
@@ -44,6 +47,16 @@ export class MemberProfileComponent implements OnInit {
         });
     }
 
+    showToast(title: string, message: string, score: string = '', xp: number = 0, type: 'success' | 'error' = 'success') {
+        this.toastConfig = { show: true, title, message, score, xp, type };
+
+        // Auto-hide after 4 seconds
+        setTimeout(() => {
+            this.toastConfig.show = false;
+            this.cdr.detectChanges();
+        }, 4000);
+    }
+
     loadRealMemberData() {
         this.http.get<any[]>(`${environment.apiUrl}/users/org/${this.orgId}/leaderboard`)
             .subscribe(members => {
@@ -55,7 +68,8 @@ export class MemberProfileComponent implements OnInit {
                     return;
                 }
 
-                this.taskService.getTasks(this.orgId).subscribe(tasks => {
+                // 🚨 FIX 1: Pass `this.memberId` so the backend knows to attach THIS specific student's attempts!
+                this.taskService.getTasks(this.orgId, this.memberId).subscribe(tasks => {
 
                     // 1. Filter tasks for this specific member securely
                     const memberTasks = tasks.filter(t => {
@@ -65,19 +79,16 @@ export class MemberProfileComponent implements OnInit {
                             : t.assignedTo === this.memberId;
                     });
 
-                    // 2. Map Pending Reviews (Checking Status vs status)
-                    // 2. Map Pending Reviews (Checking Status vs status)
+                    // 2. Map Pending Reviews
                     this.tasksPendingReview = memberTasks
                         .filter(t => (t.status || (t as any).Status || '').toLowerCase() === 'review')
                         .map(t => ({
-                            attemptId: t.id || (t as any).Id,
+                            // 🚨 FIX 2: Grab the explicitly injected attemptId from the C# backend!
+                            attemptId: t.attemptId || t.id,
                             title: t.title || (t as any).Title,
                             baseXp: t.xpReward || (t as any).XpReward,
                             customXp: t.xpReward || (t as any).XpReward,
-
-                            // 🚨 THE FIX: Map the task type so the HTML can see it!
                             taskType: (t.type || (t as any).Type || 'coding').toLowerCase(),
-
                             submittedAt: new Date()
                         }));
 
@@ -85,13 +96,11 @@ export class MemberProfileComponent implements OnInit {
                     this.tasksCompleted = memberTasks
                         .filter(t => (t.status || (t as any).Status || '').toLowerCase() === 'completed')
                         .map(t => ({
-                            attemptId: t.id || (t as any).Id,
+                            // 🚨 Same fix here!
+                            attemptId: t.attemptId || t.id,
                             title: t.title || (t as any).Title,
-                            earnedXp: t.xpReward || (t as any).XpReward,
-
-                            // 🚨 Same here, grab the type just in case we need it later
+                            earnedXp: t.earnedXp || t.xpReward || (t as any).XpReward,
                             taskType: (t.type || (t as any).Type || 'coding').toLowerCase(),
-
                             completedAt: new Date()
                         }));
 
@@ -102,9 +111,34 @@ export class MemberProfileComponent implements OnInit {
     }
 
     // 🚨 NEW: Methods to handle the modal
+    // 🚨 THE FIX: Fetch the heavy code payload on-demand when the Admin clicks View!
     viewWork(task: any) {
-        this.selectedWork = task;
+        // 1. Open the modal immediately with a loading state
+        this.selectedWork = { ...task, isLoading: true };
         this.cdr.detectChanges();
+
+        // 2. Fetch the full attempt details from the backend
+        this.taskService.getTaskById(task.attemptId).subscribe({
+            next: (fullTaskDetails: any) => {
+                // 🚨 THE FIX: Force Angular to recognize the data change immediately!
+                this.ngZone.run(() => {
+                    this.selectedWork = {
+                        ...task,
+                        ...fullTaskDetails,
+                        isLoading: false
+                    };
+                    this.cdr.detectChanges();
+                });
+            },
+            error: (err) => {// 🚨 THE FIX: Do the same for errors so the loading spinner stops!
+                this.ngZone.run(() => {
+                    console.error("Failed to load full student work", err);
+                    this.selectedWork.isLoading = false;
+                    this.selectedWork.error = true;
+                    this.cdr.detectChanges();
+                });
+            }
+        });
     }
 
     closeWorkModal() {
@@ -115,7 +149,8 @@ export class MemberProfileComponent implements OnInit {
     approveTask(task: any) {
         const finalXp = task.customXp;
 
-        this.taskService.approveTaskAttempt(task.attemptId, finalXp)
+        // 🚨 Pass this.memberId to the service so the backend grades the exact student!
+        this.taskService.approveTaskAttempt(task.attemptId, finalXp, this.memberId)
             .subscribe({
                 next: () => {
                     this.tasksPendingReview = this.tasksPendingReview.filter(t => t.attemptId !== task.attemptId);
@@ -136,14 +171,20 @@ export class MemberProfileComponent implements OnInit {
             next: (response) => {
                 console.log('Quiz Evaluation Complete:', response);
 
-                // 1. Grab a copy of the task BEFORE we destroy it
+                // 🚨 THE UX UPGRADE: Call our beautiful custom Toast instead of alert()!
+                this.showToast(
+                    'Quiz Evaluated Successfully!',
+                    'The student\'s submission has been automatically graded.',
+                    response.score,
+                    response.xpAwarded,
+                    'success'
+                );
+
                 const gradedTask = this.tasksPendingReview.find(t => t.attemptId === attemptId);
 
                 if (gradedTask) {
-                    // 2. 🚨 THE FIX: Completely reassign the pending array so Angular triggers a repaint
                     this.tasksPendingReview = this.tasksPendingReview.filter(t => t.attemptId !== attemptId);
 
-                    // 3. Completely reassign the completed array, placing the new task at the top
                     this.tasksCompleted = [
                         {
                             ...gradedTask,
@@ -154,21 +195,15 @@ export class MemberProfileComponent implements OnInit {
                         ...this.tasksCompleted
                     ];
 
-                    // 4. Update the total XP on the profile
                     if (this.memberDetails) {
                         this.memberDetails.xp += response.xpAwarded;
                     }
-
-                    // 5. Force the UI to sync
                     this.cdr.detectChanges();
-                } else {
-                    // Just in case the ID mismatch is the actual culprit
-                    console.warn(`Attempt ID [${attemptId}] not found in tasksPendingReview array!`);
                 }
             },
             error: (err) => {
                 console.error('Failed to evaluate quiz:', err);
-                alert('Server Error: Could not evaluate the quiz. Check console.');
+                this.showToast('Evaluation Failed', 'Server error: Could not evaluate the quiz.', '', 0, 'error');
             }
         });
     }
