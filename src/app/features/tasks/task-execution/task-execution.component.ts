@@ -3,7 +3,7 @@ import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment';
 import { TaskService } from '../../../core/services/task.service';
 import { SafeUrlPipe } from '../../../core/pipes/safe-url.pipe'; // Adjust path if needed
 import { PdfViewerComponent } from '../../../shared/components/pdf-viewer.component' // Adjust path accordingly
@@ -11,7 +11,7 @@ import { PdfViewerComponent } from '../../../shared/components/pdf-viewer.compon
 @Component({
     selector: 'app-task-execution',
     standalone: true,
-    imports: [CommonModule, FormsModule, PdfViewerComponent],
+    imports: [CommonModule, FormsModule, PdfViewerComponent, SafeUrlPipe],
     templateUrl: './task-execution.component.html',
     styleUrl: './task-execution.component.scss'
 })

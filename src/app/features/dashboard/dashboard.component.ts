@@ -52,9 +52,9 @@ export class DashboardComponent implements OnInit {
       if (user && user.orgId) {
         this.fetchTopPerformers(user.orgId);
 
-        if (user.role === 'admin') {
-          this.fetchInviteInfo(user.orgId);
-        }
+        // if (user.role === 'admin') {
+        this.fetchInviteInfo(user.orgId);
+        // }
       }
     });
   }

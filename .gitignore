@@ -86,7 +86,9 @@ dist/
 out-tsc/
 .angular/
 .nx/
-
+.firebase
+.firebaserc
+.firebaserc
 # Coverage reports
 coverage/
 
@@ -94,7 +96,7 @@ coverage/
 src/environments/environment.ts
 src/environments/environment.development.ts
 src/environments/environment.*.ts
-
+.firebase
 # IDEs and Editors
 .idea/
 .project
