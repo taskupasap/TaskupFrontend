@@ -73,15 +73,14 @@ export class DashboardComponent implements OnInit {
     this.http.get<LeaderboardUser[]>(`${environment.apiUrl}/users/org/${orgId}/leaderboard`)
       .subscribe(members => {
 
-        // 🚨 THE FIX: Filter out anyone with the 'admin' role immediately!
-        const onlyMembers = members.filter(m => m.role !== 'admin');
+        // 🚨 THE FIX: Create a batch of requests to get the personal task progress for EACH member
+        const taskRequests = members.map(m => this.taskService.getTasks(orgId, m.id));
 
-        // Now we only fetch task progress for the actual students/employees (Saves DB Reads!)
-        const taskRequests = onlyMembers.map(m => this.taskService.getTasks(orgId, m.id));
-
+        // forkJoin runs all the requests in parallel and returns them in the exact same order
         forkJoin(taskRequests).subscribe(resultsArray => {
-          this.allMembers = onlyMembers.map((member, index) => {
-            const memberTasks = resultsArray[index];
+
+          this.allMembers = members.map((member, index) => {
+            const memberTasks = resultsArray[index]; // The tasks with THIS member's progress overlaid!
 
             const pendingCount = memberTasks.filter(t => {
               const taskStatus = (t.status || (t as any).Status || '').toLowerCase();
@@ -91,7 +90,6 @@ export class DashboardComponent implements OnInit {
             return { ...member, pendingReviews: pendingCount };
           });
 
-          // Sort the filtered list
           this.topPerformers = [...this.allMembers].sort((a, b) => b.xp - a.xp).slice(0, 3);
           this.isLoadingLeaders = false;
           this.cdr.detectChanges();
