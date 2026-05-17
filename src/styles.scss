@@ -156,57 +156,109 @@ button {
 }
 
 /* =========================================
-   ☀️ LIGHT THEME OVERRIDES 
+   ☀️ PREMIUM CLEAN SaaS LIGHT THEME
    ========================================= */
 body.light-theme {
-    /* Override the background */
-    --bg-dark: #f0f4f8;
-    background: var(--bg-dark);
+    --bg-dark: #F4F7F9 !important;
+    background: #F4F7F9 !important;
+    background-image: none !important;
 
-    /* Flip text colors to dark */
-    color: #2d3436;
-    --text-muted: #636e72;
+    color: #111827 !important;
+    --text-main: #111827 !important;
+    --text-muted: #6B7280 !important;
 
-    /* Change the glass borders to be dark/gray instead of white/transparent */
-    --glass-border: rgba(0, 0, 0, 0.1);
-}
+    /* Force Text Colors */
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .name,
+    .m-name,
+    .logo-text,
+    .task-card h4 {
+        color: #111827 !important;
+    }
 
-/* Update Glass Cards for Light Mode */
-body.light-theme .glass-card {
-    background: rgba(255, 255, 255, 0.7);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
-}
+    p,
+    .label,
+    .col-rank .number,
+    .welcome-card p,
+    .roster-header p {
+        color: #6B7280 !important;
+    }
 
-/* Update Sidebar & Topbar specific backgrounds */
-body.light-theme .sidebar,
-body.light-theme .topbar {
-    background: rgba(255, 255, 255, 0.5);
-}
+    /* Force ALL cards to pure white with tight, modern borders */
+    .glass-card,
+    .sidebar,
+    .topbar,
+    .modern-task-form,
+    .widget,
+    .admin-task-bar {
+        background: #FFFFFF !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border: 1px solid #E5E7EB !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+    }
 
-/* Update Inputs, Selects, Textareas to look good on white */
-body.light-theme input,
-body.light-theme select,
-body.light-theme textarea {
-    background: rgba(255, 255, 255, 0.6);
-    color: #2d3436;
-}
+    /* Nested items (Kanban cards, team members) */
+    .task-card,
+    .list-item,
+    .member-card,
+    .code-box {
+        background: #F9FAFB !important;
+        border: 1px solid #E5E7EB !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    }
 
-/* Update Modal Content background */
-body.light-theme .modal-content {
-    background: #ffffff;
-}
+    /* Inputs & Forms */
+    input,
+    select,
+    textarea {
+        background: #F9FAFB !important;
+        border: 1px solid #D1D5DB !important;
+        color: #111827 !important;
 
-/* Override any stray white text */
-body.light-theme h2,
-body.light-theme h3,
-body.light-theme h4,
-body.light-theme .name,
-body.light-theme .close-btn {
-    color: #2d3436;
-}
+        &::placeholder {
+            color: #9CA3AF !important;
+        }
 
-/* Make nav items darker when hovering in light mode */
-body.light-theme .nav-item:hover {
-    background: rgba(0, 0, 0, 0.05);
-    color: var(--primary);
+        &:focus {
+            background: #FFFFFF !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2) !important;
+            outline: none;
+        }
+    }
+
+    /* Gamification Table */
+    .table-row {
+        border-bottom: 1px solid #E5E7EB !important;
+
+        &:hover {
+            background: #F9FAFB !important;
+        }
+
+        &.current-user {
+            background: #EEF2FF !important;
+            border-left-color: var(--primary) !important;
+        }
+    }
+
+    /* Modals & Nav */
+    .modal-content {
+        background: #FFFFFF !important;
+    }
+
+    .nav-item:hover {
+        background: #F3F4F6 !important;
+        color: var(--primary) !important;
+    }
+
+    .nav-item.active {
+        background: #EEF2FF !important;
+        color: var(--primary) !important;
+    }
 }
