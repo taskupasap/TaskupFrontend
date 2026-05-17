@@ -2,14 +2,14 @@ import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { LeaderboardUser } from '@core/models';
 
 @Component({
-    selector: 'app-leaderboard',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-leaderboard',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     <div class="leaderboard-container fade-in">
       <div class="header">
         <h1>🏆 Workspace Leaderboard</h1>
@@ -61,7 +61,7 @@ import { LeaderboardUser } from '@core/models';
       }
     </div>
   `,
-    styles: [`
+  styles: [`
     .leaderboard-container { padding: 32px; max-width: 900px; margin: 0 auto; }
     .header { text-align: center; margin-bottom: 32px; }
     .header h1 { font-size: 32px; margin: 0 0 8px 0; background: linear-gradient(90deg, #F9CA24, #f0932b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -91,37 +91,37 @@ import { LeaderboardUser } from '@core/models';
   `]
 })
 export class LeaderboardComponent implements OnInit {
-    private http = inject(HttpClient);
-    public auth = inject(AuthService); // Made public for safety
-    private cdr = inject(ChangeDetectorRef); // The Sledgehammer
+  private http = inject(HttpClient);
+  public auth = inject(AuthService); // Made public for safety
+  private cdr = inject(ChangeDetectorRef); // The Sledgehammer
 
-    users: LeaderboardUser[] = [];
-    isLoading = true;
-    currentUserId = '';
+  users: LeaderboardUser[] = [];
+  isLoading = true;
+  currentUserId = '';
 
-    ngOnInit() {
-        this.auth.currentUser$.subscribe(user => {
-            if (user && user.orgId) {
-                this.currentUserId = user.uid;
-                this.fetchLeaderboard(user.orgId);
-            }
-        });
-    }
+  ngOnInit() {
+    this.auth.currentUser$.subscribe(user => {
+      if (user && user.orgId) {
+        this.currentUserId = user.uid;
+        this.fetchLeaderboard(user.orgId);
+      }
+    });
+  }
 
-    fetchLeaderboard(orgId: string) {
-        this.http.get<LeaderboardUser[]>(`${environment.apiUrl}/users/org/${orgId}/leaderboard`)
-            .subscribe({
-                next: (data) => {
-                    console.log('Leaderboard Data:', data); // Check your browser console!
-                    this.users = data;
-                    this.isLoading = false;
-                    this.cdr.detectChanges(); // Force the UI to draw right now
-                },
-                error: (err) => {
-                    console.error('Failed to load leaderboard', err);
-                    this.isLoading = false;
-                    this.cdr.detectChanges();
-                }
-            });
-    }
+  fetchLeaderboard(orgId: string) {
+    this.http.get<LeaderboardUser[]>(`${environment.apiUrl}/users/org/${orgId}/leaderboard`)
+      .subscribe({
+        next: (data) => {
+          console.log('Leaderboard Data:', data); // Check your browser console!
+          this.users = data;
+          this.isLoading = false;
+          this.cdr.detectChanges(); // Force the UI to draw right now
+        },
+        error: (err) => {
+          console.error('Failed to load leaderboard', err);
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
 }

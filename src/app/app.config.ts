@@ -10,7 +10,7 @@ import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 
 // Local Imports
 import { routes } from './app.routes';
-import { environment } from '../environments/environment.development';
+import { environment } from '../environments/environment';
 import { firebaseTokenInterceptor } from './core/interceptors/firebase-token.interceptor';
 
 export const appConfig: ApplicationConfig = {

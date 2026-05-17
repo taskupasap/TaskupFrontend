@@ -49,7 +49,11 @@ export const routes: Routes = [
         canActivate: [publicGuard],
         loadComponent: () => import('./features/auth/register/member-register/member-register.component').then(m => m.MemberRegisterComponent)
     },
-
+    {
+        path: 'task/:id/execute',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/tasks/task-execution/task-execution.component').then(m => m.TaskExecutionComponent)
+    },
     // ---------------------------------------------------------
     // 🔒 PRIVATE APP ROUTES (Wrapped in Sidebar Shell)
     // ---------------------------------------------------------

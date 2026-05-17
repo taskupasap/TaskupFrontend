@@ -6,7 +6,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { XpRingComponent } from './widgets/xp-ring.component';
 import { User, LeaderboardUser } from '../../core/models';
 import { Observable, forkJoin } from 'rxjs';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '@core/services/task.service';
 import { UserService } from '@core/services/user.service';
@@ -73,14 +73,15 @@ export class DashboardComponent implements OnInit {
     this.http.get<LeaderboardUser[]>(`${environment.apiUrl}/users/org/${orgId}/leaderboard`)
       .subscribe(members => {
 
-        // 🚨 THE FIX: Create a batch of requests to get the personal task progress for EACH member
-        const taskRequests = members.map(m => this.taskService.getTasks(orgId, m.id));
+        // 🚨 THE FIX: Filter out anyone with the 'admin' role immediately!
+        const onlyMembers = members.filter(m => m.role !== 'admin');
 
-        // forkJoin runs all the requests in parallel and returns them in the exact same order
+        // Now we only fetch task progress for the actual students/employees (Saves DB Reads!)
+        const taskRequests = onlyMembers.map(m => this.taskService.getTasks(orgId, m.id));
+
         forkJoin(taskRequests).subscribe(resultsArray => {
-
-          this.allMembers = members.map((member, index) => {
-            const memberTasks = resultsArray[index]; // The tasks with THIS member's progress overlaid!
+          this.allMembers = onlyMembers.map((member, index) => {
+            const memberTasks = resultsArray[index];
 
             const pendingCount = memberTasks.filter(t => {
               const taskStatus = (t.status || (t as any).Status || '').toLowerCase();
@@ -90,6 +91,7 @@ export class DashboardComponent implements OnInit {
             return { ...member, pendingReviews: pendingCount };
           });
 
+          // Sort the filtered list
           this.topPerformers = [...this.allMembers].sort((a, b) => b.xp - a.xp).slice(0, 3);
           this.isLoadingLeaders = false;
           this.cdr.detectChanges();

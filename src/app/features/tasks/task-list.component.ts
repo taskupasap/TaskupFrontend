@@ -6,7 +6,7 @@ import { TaskService } from '../../core/services/task.service';
 import { AuthService } from '../../core/services/auth.service';
 import { LeaderboardUser, Task } from '../../core/models';
 import confetti from 'canvas-confetti';
-import { environment } from '@env/environment.development';
+import { environment } from '@env/environment';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
