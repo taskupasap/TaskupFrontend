@@ -70,15 +70,16 @@
 }
 
 .mini-avatar {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: #6C63FF;
+    background: linear-gradient(135deg, #6C63FF, #a371f7);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
     color: white;
+    box-shadow: 0 4px 10px rgba(108, 99, 255, 0.3);
 }
 
 .center-content {
@@ -259,6 +260,83 @@
         justify-content: center;
         box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
         animation: pulseAlert 2s infinite;
+    }
+}
+
+/* --- Modern Top Performers List --- */
+.modern-performer-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    cursor: default;
+
+    &:hover {
+        transform: translateX(6px);
+        border-color: rgba(108, 99, 255, 0.4);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        background: rgba(255, 255, 255, 0.04);
+    }
+}
+
+.rank-badge {
+    font-size: 14px;
+    font-weight: 900;
+    color: #8b949e;
+    width: 28px;
+    text-align: center;
+    font-style: italic;
+
+    /* Custom Colors for Top 3 */
+    &.rank-1 {
+        color: #FFD700;
+        font-size: 18px;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    }
+
+    /* Gold */
+    &.rank-2 {
+        color: #C0C0C0;
+        font-size: 16px;
+    }
+
+    /* Silver */
+    &.rank-3 {
+        color: #CD7F32;
+        font-size: 15px;
+    }
+
+    /* Bronze */
+}
+
+.m-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex: 1;
+    /* Pushes the XP badge to the far right */
+
+    .m-name {
+        font-weight: 600;
+        color: #e6edf3;
+        font-size: 15px;
+    }
+
+    .m-xp {
+        font-size: 12px;
+        color: #43E97B;
+        font-weight: 800;
+        font-family: 'JetBrains Mono', monospace;
+        background: rgba(67, 233, 123, 0.1);
+        padding: 4px 10px;
+        border-radius: 20px;
+        border: 1px solid rgba(67, 233, 123, 0.2);
+        box-shadow: 0 0 10px rgba(67, 233, 123, 0.05);
     }
 }
 

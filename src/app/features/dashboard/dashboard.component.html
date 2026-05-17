@@ -116,11 +116,14 @@
 
         <div class="list">
           @for (performer of topPerformers; track performer.id; let i = $index) {
-            <div class="list-item">
+            <div class="list-item modern-performer-card">
+              <div class="rank-badge" [ngClass]="'rank-' + (i + 1)">#{{ i + 1 }}</div>
+              
               <div class="mini-avatar">{{ performer.displayName.charAt(0).toUpperCase() }}</div>
+              
               <div class="m-info">
-                <span class="m-name" style="margin: 0; font-weight: bold; color: white;">{{ performer.displayName }}</span>
-                <span class="m-role" style="font-size: 12px; color: var(--accent); font-weight: bold;">{{ performer.xp }} XP</span>
+                <span class="m-name">{{ performer.displayName }}</span>
+                <span class="m-xp">+{{ performer.xp }} XP</span>
               </div>
             </div>
           }
